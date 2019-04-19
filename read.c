@@ -8,8 +8,9 @@
 
 #include "env.h"
 #include "form.h"
-#include "read.h"
 #include "package.h"
+#include "read.h"
+#include "form_string.h"
 
 int refill (s_standard_input *si)
 {
@@ -101,18 +102,30 @@ u_form * read_cons (s_standard_input *si)
 
 u_form * read_string (s_standard_input *si)
 {
-        u_form *f;
+        u_form *f = NULL;
         unsigned long c;
         if (peek_char(si) == '"') {
-                read_char(si);
-                for (c = si->start; c < si->end && si->s[c] != '"'; c++)
-                        ;
-                if (si->s[c] == '"') {
-                        f = new_string(c - si->start, si->s + si->start);
-                        si->start = c + 1;
-                        return f;
+                si->start++;
+                while (!refill(si)) {
+                        for (c = si->start + 1; c < si->end &&
+                                     si->s[c] != '"'; c++)
+                                ;
+                        if (f)
+                                f = (u_form*)
+                                        string_append((s_string*) f,
+                                                      si->s + si->start,
+                                                      c - si->start);
+                        else
+                                f = new_string(c - si->start,
+                                               si->s + si->start);
+                        if (si->s[c] == '"') {
+                                si->start = c + 1;
+                                return f;
+                        }
+                        f = (u_form*) string_append((s_string*) f, "\n",
+                                                    1);
+                        si->start = c;
                 }
-                /* fix newline */
         }
         return NULL;
 }
