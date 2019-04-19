@@ -1,0 +1,25 @@
+
+ACLOCAL_AMFLAGS = -I build-aux/m4
+
+bin_PROGRAMS =
+CLEANFILES =
+include_HEADERS =
+lib_LTLIBRARIES =
+
+if DEBUG
+AM_CFLAGS = -DDEBUG -O0 -ggdb
+else
+AM_CFLAGS = -DNDEBUG -O2
+endif
+
+bin_PROGRAMS += cfacts
+cfacts_LDADD = -lreadline -lncurses -lskiplist
+cfacts_SOURCES = \
+	cfacts.c \
+	cli.c \
+	env.c \
+	eval.c \
+	form.c \
+	package.c \
+	print.c \
+	read.c
