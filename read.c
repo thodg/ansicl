@@ -74,6 +74,7 @@ u_form * read_cons (s_standard_input *si)
                 while (!read_spaces(si) && (c = peek_char(si)) >= 0) {
                         if (c == ')') {
                                 read_char(si);
+                                *tail = nil();
                                 return head;
                         }
                         if (c == '.') {

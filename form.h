@@ -52,8 +52,7 @@ union form {
         s_cfun cfun;
 };
 
-enum e_form_type { FORM_NULL,
-                   FORM_CONS,
+enum e_form_type { FORM_CONS,
                    FORM_STRING,
                    FORM_SYMBOL,
                    FORM_PACKAGE,

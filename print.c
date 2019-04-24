@@ -3,18 +3,13 @@
 #include "package.h"
 #include "print.h"
 
-void print_nil ()
-{
-        fputs("nil", stdout);
-}
-
 void print_cons (s_cons *cons)
 {
         u_form *quote_sym = NULL;
         if (!quote_sym)
                 quote_sym = (u_form*) sym("quote");
         if (cons->car == quote_sym && cons->cdr->type == FORM_CONS &&
-            (!cons->cdr->cons.cdr || cons->cdr->cons.cdr == FORM_NULL)) {
+            cons->cdr->cons.cdr == nil()) {
                 putchar('\'');
                 print(cons->cdr->cons.car);
                 return;
@@ -26,7 +21,7 @@ void print_cons (s_cons *cons)
                 cons = &cons->cdr->cons;
                 print(cons->car);
         }
-        if (cons->cdr && cons->cdr->type != FORM_NULL) {
+        if (cons->cdr != nil()) {
                 fputs(" . ", stdout);
                 print(cons->cdr);
         }
@@ -66,13 +61,9 @@ void print_error (const char *msg)
 void print (u_form *f)
 {
         if (!f) {
-                print_nil();
                 return;
         }
         switch (f->type) {
-        case FORM_NULL:
-                print_nil();
-                break;
         case FORM_CONS:
                 print_cons((s_cons*)f);
                 break;

@@ -7,9 +7,10 @@
 
 u_form * nil ()
 {
-        static u_form n;
-        n.type = FORM_NULL;
-        return &n;
+        static u_form *nil_sym = NULL;
+        if (!nil_sym)
+                nil_sym = (u_form*) sym("nil");
+        return nil_sym;
 }
 
 s_cons * new_cons (u_form *car, u_form *cdr)
