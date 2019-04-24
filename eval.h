@@ -25,6 +25,7 @@ u_form * cfun_cdr (u_form *args, s_env *env);
 u_form * cfun_cons (u_form *args, s_env *env);
 u_form * cfun_cond (u_form *args, s_env *env);
 
+u_form * cfun_progn (u_form *form, s_env *env);
 u_form * cfun_assoc (u_form *args, s_env *env);
 
 u_form * cfun_let (u_form *args, s_env *env);
@@ -32,7 +33,6 @@ u_form * cfun_defvar (u_form *args, s_env *env);
 u_form * cfun_defparameter (u_form *args, s_env *env);
 u_form * cfun_setq (u_form *args, s_env *env);
 
-u_form * eval_progn (u_form *form, s_env *env);
 u_form * eval (u_form *form, s_env *env);
 
 #endif

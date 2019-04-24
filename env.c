@@ -108,7 +108,7 @@ u_form * let (u_form *bindings, u_form *body, s_env *env)
                         let_(bindings->cons.car, nil(), e);
                 bindings = bindings->cons.cdr;
         }
-        return eval_progn(body, e);
+        return cfun_progn(body, e);
 }
 
 void cfun (const char *name, f_cfun *fun)
@@ -151,6 +151,7 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("cdr", cfun_cdr);
         cfun("cons", cfun_cons);
         cfun("cond", cfun_cond);
+        cfun("progn", cfun_progn);
         cfun("assoc", cfun_assoc);
         cfun("let", cfun_let);
         cfun("defvar", cfun_defvar);

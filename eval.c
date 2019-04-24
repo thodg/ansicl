@@ -233,7 +233,7 @@ u_form * cfun_cond (u_form *args, s_env *env)
                         return error("invalid cond form");
                 f = eval(args->cons.car->cons.car, env);
                 if (f && f->type != FORM_NULL)
-                        return eval_progn(args->cons.car->cons.cdr,
+                        return cfun_progn(args->cons.car->cons.cdr,
                                           env);
                 args = args->cons.cdr;
         }
@@ -263,7 +263,7 @@ u_form * cfun_assoc (u_form *args, s_env *env)
                      eval(args->cons.cdr->cons.car, env));
 }
 
-u_form * eval_progn (u_form *form, s_env *env)
+u_form * cfun_progn (u_form *form, s_env *env)
 {
         u_form *f = nil();
         while (form && form->type == FORM_CONS) {
