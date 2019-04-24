@@ -13,7 +13,7 @@
 int repl (s_env *env)
 {
         while (env->run) {
-                u_form *r = read_form(&env->si);
+                u_form *r = read_form(env->si);
                 if (!r) {
                         env->run = 0;
                         break;
@@ -24,12 +24,21 @@ int repl (s_env *env)
         return 0;
 }
 
+void init_standard_input (s_standard_input *si)
+{
+        si->s = NULL;
+        si->start = 0;
+        si->end = 0;
+        si->in_cons = 0;
+}
+
 int main ()
 {
-        s_env env;
+        s_standard_input si;
         srand(42);
         init_packages();
-        env_init(&env);
+        init_standard_input(&si);
+        env_init(&g_env, &si);
         using_history();
-        return repl(&env);
+        return repl(&g_env);
 }

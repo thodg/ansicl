@@ -7,6 +7,7 @@
 #include <readline/history.h>
 
 #include "env.h"
+#include "eval.h"
 #include "form.h"
 #include "package.h"
 #include "read.h"
@@ -93,7 +94,7 @@ u_form * read_cons (s_standard_input *si)
                         }
                         if (!(*tail = read_form(si)))
                                 return NULL;
-                        *tail = new_cons(*tail, NULL);
+                        *tail = (u_form*) new_cons(*tail, NULL);
                         tail = &(*tail)->cons.cdr;
                 }
         }
@@ -116,8 +117,8 @@ u_form * read_string (s_standard_input *si)
                                                       si->s + si->start,
                                                       c - si->start);
                         else
-                                f = new_string(c - si->start,
-                                               si->s + si->start);
+                                f = (u_form*)new_string(c - si->start,
+                                                        si->s + si->start);
                         if (si->s[c] == '"') {
                                 si->start = c + 1;
                                 return f;
@@ -140,15 +141,25 @@ u_form * read_symbol (s_standard_input *si)
         while (i < si->end && si->s[i] != '(' && si->s[i] != ')'
                && si->s[i] != '.' && si->s[i] != '"' && si->s[i] != ' '
                && si->s[i] != '\t' && si->s[i] != '\r'
-               && si->s[i] != '\n') {
+               && si->s[i] != '\n' && si->s[i] != '\'') {
                 j = i;
                 i++;
         }
         j = i;
-        f = new_string(j - si->start, si->s + si->start);
+        f = (u_form*) new_string(j - si->start, si->s + si->start);
         f = (u_form*) intern(&f->string, NULL);
         si->start = j;
         return f;
+}
+
+u_form * read_quote (s_standard_input *si)
+{
+        if (peek_char(si) == '\'') {
+                read_char(si);
+                u_form *f = quote(read_form(si));
+                return f;
+        }
+        return NULL;
 }
 
 u_form * read_form (s_standard_input *si)
@@ -156,6 +167,8 @@ u_form * read_form (s_standard_input *si)
         u_form *f;
         if (read_spaces(si))
                 return NULL;
+        if ((f = read_quote(si)))
+                return f;
         if ((f = read_cons(si)))
                 return f;
         if ((f = read_string(si)))

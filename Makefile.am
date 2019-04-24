@@ -13,10 +13,9 @@ AM_CFLAGS = -DNDEBUG -O2
 endif
 
 bin_PROGRAMS += cfacts
-cfacts_LDADD = -lreadline -lncurses -lskiplist
+cfacts_LDADD = -lreadline -lncurses -lskiplist -lgc
 cfacts_SOURCES = \
 	cfacts.c \
-	cli.c \
 	env.c \
 	eval.c \
 	form.c \

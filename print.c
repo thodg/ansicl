@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include "package.h"
 #include "print.h"
 
 void print_nil ()
@@ -9,6 +10,15 @@ void print_nil ()
 
 void print_cons (s_cons *cons)
 {
+        u_form *quote_sym = NULL;
+        if (!quote_sym)
+                quote_sym = (u_form*) sym("quote");
+        if (cons->car == quote_sym && cons->cdr->type == FORM_CONS &&
+            (!cons->cdr->cons.cdr || cons->cdr->cons.cdr == FORM_NULL)) {
+                putchar('\'');
+                print(cons->cdr->cons.car);
+                return;
+        }
         putchar('(');
         print(cons->car);
         while (cons->cdr && cons->cdr->type == FORM_CONS) {
