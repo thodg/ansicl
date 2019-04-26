@@ -36,6 +36,7 @@ u_form * cfun_setq (u_form *args, s_env *env);
 
 u_form * cfun_lambda (u_form *args, s_env *env);
 u_form * cfun_defun (u_form *args, s_env *env);
+u_form * cfun_function (u_form *args, s_env *env);
 
 u_form * eval (u_form *form, s_env *env);
 

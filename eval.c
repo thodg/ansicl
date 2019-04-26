@@ -376,14 +376,17 @@ u_form * cfun_defun (u_form *args, s_env *env)
         if (!consp(args) || !symbolp(args->cons.car) ||
             !consp(args->cons.cdr))
                 return error("invalid defun form");
-        s_symbol *name = &args->cons.car->symbol;
-        s_lambda *l = new_lambda(sym("function"), name,
-                                 args->cons.cdr->cons.car,
-                                 args->cons.cdr->cons.cdr,
-                                 env);
-        s_closure *c = new_closure(l);
-        frame_new_function(name, (u_form*) c, env->global_frame);
-        return (u_form*) name;
+        return defun(&args->cons.car->symbol,
+                     args->cons.cdr->cons.car,
+                     args->cons.cdr->cons.cdr, env);
+}
+
+u_form * cfun_function (u_form *args, s_env *env)
+{
+        if (!consp(args) || !symbolp(args->cons.car) ||
+            args->cons.cdr != nil())
+                return error("invalid function form");
+        return function(&args->cons.car->symbol, env);
 }
 
 u_form * eval (u_form *form, s_env *env)

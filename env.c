@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "env.h"
 #include "eval.h"
+#include "lambda.h"
 #include "package.h"
 
 s_env g_env;
@@ -175,11 +176,19 @@ void cfun (const char *name, f_cfun *fun)
                 new_cons(c, g_env.global_frame->functions);
 }
 
-u_form * defun (s_symbol *name, u_form *lambda_list, u_form *body)
+u_form * defun (s_symbol *name, u_form *lambda_list, u_form *body,
+                s_env *env)
 {
-        (void) lambda_list;
-        (void) body;
+        s_lambda *l = new_lambda(sym("function"), name, lambda_list,
+                                 body, env);
+        s_closure *c = new_closure(l);
+        frame_new_function(name, (u_form*) c, env->global_frame);
         return (u_form*) name;
+}
+
+u_form * function (s_symbol *name, s_env *env)
+{
+        return frame_function(name, env->frame);
 }
 
 u_form * defmacro (s_symbol *name, u_form *lambda_list, u_form *body)
@@ -210,6 +219,7 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("setq", cfun_setq);
         cfun("lambda", cfun_lambda);
         cfun("defun", cfun_defun);
+        cfun("function", cfun_function);
 }
 
 s_frame * push_frame (s_env *env)
