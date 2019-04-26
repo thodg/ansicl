@@ -12,11 +12,15 @@ typedef struct frame
 } s_frame;
 
 s_frame * new_frame (s_frame *parent);
-s_frame * global_frame ();
-
-u_form * frame_value (s_symbol *sym, s_frame *frame);
-u_form * frame_function (s_symbol *sym, s_frame *frame);
-u_form * frame_macro (s_symbol *sym, s_frame *frame);
+void          frame_new_variable (s_symbol *sym, u_form *value,
+                                  s_frame *frame);
+void          frame_new_function (s_symbol *sym, u_form *value,
+                                  s_frame *frame);
+void          frame_new_macro (s_symbol *sym, u_form *value,
+                               s_frame *frame);
+u_form *      frame_variable (s_symbol *sym, s_frame *frame);
+u_form *      frame_function (s_symbol *sym, s_frame *frame);
+u_form *      frame_macro (s_symbol *sym, s_frame *frame);
 
 typedef struct env
 {

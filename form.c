@@ -1,7 +1,9 @@
 
+#include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include "env.h"
 #include "form.h"
 #include "package.h"
 
@@ -63,4 +65,15 @@ s_package * new_package (s_symbol *name)
                 pkg->symbols->compare = compare_symbols;
         }
         return pkg;
+}
+
+s_closure * new_closure (s_lambda *lambda)
+{
+        s_closure *c = malloc(sizeof(s_closure));
+        if (c) {
+                c->type = FORM_CLOSURE;
+                c->lambda = lambda;
+                assert(lambda);
+        }
+        return c;
 }

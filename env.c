@@ -19,85 +19,92 @@ s_frame * new_frame (s_frame *parent)
         return f;
 }
 
+void frame_new_variable (s_symbol *sym, u_form *value, s_frame *frame)
+{
+        u_form *a = (u_form*) new_cons((u_form*) sym, value);
+        frame->variables = (u_form*) new_cons(a, frame->variables);
+}
+
+void frame_new_function (s_symbol *sym, u_form *value, s_frame *frame)
+{
+        u_form *a = (u_form*) new_cons((u_form*) sym, value);
+        frame->functions = (u_form*) new_cons(a, frame->functions);
+}
+
+void frame_new_macro (s_symbol *sym, u_form *value, s_frame *frame)
+{
+        u_form *a = (u_form*) new_cons((u_form*) sym, value);
+        frame->macros = (u_form*) new_cons(a, frame->macros);
+}
+
 u_form * frame_value (s_symbol *sym, s_frame *frame)
 {
-        u_form *f;
-        f = assoc((u_form*) sym, frame->variables);
-        if (f && f->type == FORM_CONS)
-                return f->cons.cdr;
+        while (frame) {
+                u_form *f;
+                f = assoc((u_form*) sym, frame->variables);
+                if (f && f->type == FORM_CONS)
+                        return f->cons.cdr;
+                frame = frame->parent;
+        }
         return NULL;
 }
 
 u_form * frame_function (s_symbol *sym, s_frame *frame)
 {
-        u_form *f;
-        f = assoc((u_form*) sym, frame->functions);
-        if (f && f->type == FORM_CONS)
-                return f->cons.cdr;
+        while (frame) {
+                u_form *f;
+                f = assoc((u_form*) sym, frame->functions);
+                if (f && f->type == FORM_CONS)
+                        return f->cons.cdr;
+                frame = frame->parent;
+        }
         return NULL;
 }
 
 u_form * frame_macro (s_symbol *sym, s_frame *frame)
 {
-        u_form *f;
-        f = assoc((u_form*) sym, frame->macros);
-        if (f && f->type == FORM_CONS)
-                return f->cons.cdr;
+        while (frame) {
+                u_form *f;
+                f = assoc((u_form*) sym, frame->macros);
+                if (f && f->type == FORM_CONS)
+                        return f->cons.cdr;
+                frame = frame->parent;
+        }
         return NULL;
 }
 
 u_form * symbol_value (s_symbol *sym, s_env *env)
 {
-        s_frame *frame = env->frame;
-        while (frame) {
-                u_form *f = frame_value(sym, frame);
-                if (f)
-                        return f;
-                frame = frame->parent;
-        }
-        return NULL;
+        return frame_value(sym, env->frame);
 }
 
 u_form * symbol_function (s_symbol *sym, s_env *env)
 {
-        s_frame *frame = env->frame;
-        while (frame) {
-                u_form *f = frame_function(sym, frame);
-                if (f)
-                        return f;
-                frame = frame->parent;
-        }
-        return NULL;
+        return frame_function(sym, env->frame);
 }
 
 u_form * symbol_macro (s_symbol *sym, s_env *env)
 {
-        s_frame *frame = env->frame;
-        while (frame) {
-                u_form *f = frame_macro(sym, frame);
-                if (f)
-                        return f;
-                frame = frame->parent;
-        }
-        return NULL;
+        return frame_macro(sym, env->frame);
 }
 
 u_form * defvar (s_symbol *name, u_form *value, s_env *env)
 {
         u_form *f = frame_value(name, env->global_frame);
-        if (!f) {
-                f = (u_form*) new_cons((u_form*) name, value);
-                env->global_frame->variables = (u_form*)
-                        new_cons(f, env->global_frame->variables);
-        }
+        if (!f)
+                frame_new_variable(name, value, env->global_frame);
         return (u_form*) name;
 }
 
 u_form * setq (s_symbol *name, u_form *value, s_env *env)
 {
-        u_form *f;
-        f = assoc((u_form*) name, env->frame->variables);
-        if (!f || f->type != FORM_CONS)
+        u_form *f = nil();
+        s_frame *frame = env->frame;
+        while (frame && !consp(f)) {
+                f = assoc((u_form*) name, frame->variables);
+                frame = frame->parent;
+        }
+        if (!consp(f))
                 return error("unbound symbol %s", name->string->str);
         f->cons.cdr = value;
         return value;
@@ -106,22 +113,11 @@ u_form * setq (s_symbol *name, u_form *value, s_env *env)
 u_form * defparameter (s_symbol *name, u_form *value, s_env *env)
 {
         u_form *f = frame_value(name, env->global_frame);
-        if (!f) {
-                f = (u_form*) new_cons((u_form*) name, value);
-                env->global_frame->variables = (u_form*)
-                        new_cons(f, env->global_frame->variables);
-        }
+        if (!f)                
+                frame_new_variable(name, value, env->global_frame);
         else
                 setq(name, value, &g_env);
         return (u_form*) name;
-}
-
-void let_ (u_form *name, u_form *value, s_frame *frame)
-{
-        u_form *f;
-        f = (u_form*) new_cons(name, value);
-        frame->variables = (u_form*)
-                new_cons(f, frame->variables);
 }
 
 u_form * let_star (u_form *bindings, u_form *body, s_env *env)
@@ -129,11 +125,17 @@ u_form * let_star (u_form *bindings, u_form *body, s_env *env)
         s_frame *f = new_frame(env->frame);
         env->frame = f;
         while (bindings && bindings->type == FORM_CONS) {
-                if (bindings->cons.car->type == FORM_CONS)
-                        let_(caar(bindings),
-                             eval(cadar(bindings), env), f);
-                else
-                        let_(bindings->cons.car, nil(), f);
+                u_form *name;
+                u_form *value = nil();
+                if (consp(bindings->cons.car)) {
+                        name = bindings->cons.car->cons.car;
+                        if (consp(bindings->cons.car->cons.cdr))
+                                value = eval(cadar(bindings), env);
+                } else
+                        name = bindings->cons.car;
+                if (!symbolp(name))
+                        return error("invalid let* binding");
+                frame_new_variable(&name->symbol, value, f);
                 bindings = bindings->cons.cdr;
         }
         return cfun_progn(body, env);
@@ -143,11 +145,17 @@ u_form * let (u_form *bindings, u_form *body, s_env *env)
 {
         s_frame *f = new_frame(env->frame);
         while (bindings && bindings->type == FORM_CONS) {
-                if (bindings->cons.car->type == FORM_CONS)
-                        let_(caar(bindings),
-                             eval(cadar(bindings), env), f);
-                else
-                        let_(bindings->cons.car, nil(), f);
+                u_form *name;
+                u_form *value = nil();
+                if (consp(bindings->cons.car)) {
+                        name = bindings->cons.car->cons.car;
+                        if (consp(bindings->cons.car->cons.cdr))
+                                value = eval(cadar(bindings), env);
+                } else
+                        name = bindings->cons.car;
+                if (!symbolp(name))
+                        return error("invalid let binding");
+                frame_new_variable(&name->symbol, value, f);
                 bindings = bindings->cons.cdr;
         }
         env->frame = f;
@@ -194,11 +202,14 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("cons", cfun_cons);
         cfun("cond", cfun_cond);
         cfun("progn", cfun_progn);
+        cfun("find", cfun_find);
         cfun("assoc", cfun_assoc);
         cfun("let", cfun_let);
         cfun("defvar", cfun_defvar);
         cfun("defparameter", cfun_defparameter);
         cfun("setq", cfun_setq);
+        cfun("lambda", cfun_lambda);
+        cfun("defun", cfun_defun);
 }
 
 s_frame * push_frame (s_env *env)

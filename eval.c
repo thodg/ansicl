@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "env.h"
 #include "eval.h"
+#include "lambda.h"
 #include "package.h"
 
 u_form * error (const char *msg, ...)
@@ -86,16 +87,6 @@ u_form * eval_beta (u_form *form, s_env *env)
         return NULL;
 }
 
-u_form * eval_lambda (u_form *form)
-{
-        u_form *lambda_sym = NULL;
-        if (!lambda_sym)
-                lambda_sym = (u_form*) sym("lambda");
-        if (consp(form) && form->cons.car == lambda_sym)
-                return form;
-        return NULL;
-}
-
 u_form * eval_function (u_form *form, s_env *env)
 {
         if (consp(form) && symbolp(form->cons.car)) {
@@ -106,9 +97,12 @@ u_form * eval_function (u_form *form, s_env *env)
                                      sym->string->str);
                 if (f->type == FORM_CFUN)
                         return f->cfun.fun(form->cons.cdr, env);
-                if (f->type == FORM_CONS)
-                        return beta(f, form->cons.cdr, env);
-                return f;
+                if (f->type == FORM_CLOSURE) {
+                        u_form *args = mapcar_eval(form->cons.cdr,
+                                                   env);
+                        return apply(f->closure.lambda, args, env);
+                }
+                return error("unknown function type");
         }
         return NULL;
 }
@@ -270,6 +264,26 @@ u_form * cfun_cond (u_form *args, s_env *env)
         return nil();
 }
 
+u_form * find (u_form *item, u_form *list)
+{
+        while (consp(list)) {
+                if (list->cons.car == item)
+                        return item;
+                list = list->cons.cdr;
+        }
+        return NULL;
+}
+
+u_form * cfun_find (u_form *args, s_env *env)
+{
+        if (!consp(args) ||
+            !consp(args->cons.cdr) ||
+            args->cons.cdr->cons.cdr != nil())
+                return error("invalid arguments for find");
+        return find(eval(args->cons.car, env),
+                    eval(args->cons.cdr->cons.car, env));
+}
+
 u_form * assoc (u_form *item, u_form *alist)
 {
         while (consp(alist) && item != caar(alist)) {
@@ -347,6 +361,31 @@ u_form * cfun_defparameter (u_form *args, s_env *env)
                             env);
 }
 
+u_form * cfun_lambda (u_form *args, s_env *env)
+{
+        if (!consp(args) || !consp(args->cons.cdr))
+                return error("invalid lambda form");
+        s_lambda *l = new_lambda(sym("lambda"), &nil()->symbol,
+                                 args->cons.car, args->cons.cdr,
+                                 env);
+        return (u_form*) new_closure(l);
+}
+
+u_form * cfun_defun (u_form *args, s_env *env)
+{
+        if (!consp(args) || !symbolp(args->cons.car) ||
+            !consp(args->cons.cdr))
+                return error("invalid defun form");
+        s_symbol *name = &args->cons.car->symbol;
+        s_lambda *l = new_lambda(sym("function"), name,
+                                 args->cons.cdr->cons.car,
+                                 args->cons.cdr->cons.cdr,
+                                 env);
+        s_closure *c = new_closure(l);
+        frame_new_function(name, (u_form*) c, env->global_frame);
+        return (u_form*) name;
+}
+
 u_form * eval (u_form *form, s_env *env)
 {
         u_form *f;
@@ -354,7 +393,6 @@ u_form * eval (u_form *form, s_env *env)
         if ((f = eval_t(form))) return f;
         if ((f = eval_variable(form, env))) return f;
         if ((f = eval_macro(form, env))) return f;
-        if ((f = eval_lambda(form))) return f;
         if ((f = eval_function(form, env))) return f;
         if ((f = eval_beta(form, env))) return f;
         return form;

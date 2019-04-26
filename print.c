@@ -1,5 +1,7 @@
 
 #include <stdio.h>
+#include "eval.h"
+#include "lambda.h"
 #include "package.h"
 #include "print.h"
 
@@ -53,9 +55,20 @@ void print_package (s_package *pkg)
         fputs(">", stdout);
 }
 
-void print_error (const char *msg)
+void print_cfun (s_cfun *cf)
 {
-        fprintf(stderr, "cfacts: %s\n", msg);
+        fputs("#<cfun ", stdout);
+        fputs(cf->name->string->str, stdout);
+        fputs(">", stdout);
+}
+
+void print_closure (s_closure *c)
+{
+        fputs("#<", stdout);
+        print_symbol(c->lambda->type);
+        fputs(" ", stdout);
+        print_symbol(c->lambda->name);
+        fputs(">", stdout);
 }
 
 void print (u_form *f)
@@ -76,7 +89,13 @@ void print (u_form *f)
         case FORM_PACKAGE:
                 print_package((s_package*)f);
                 break;
+        case FORM_CFUN:
+                print_cfun((s_cfun*)f);
+                break;
+        case FORM_CLOSURE:
+                print_closure((s_closure*)f);
+                break;
         default:
-                print_error("unknown form type");
+                error("unknown form type");
         }
 }
