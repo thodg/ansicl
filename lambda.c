@@ -34,7 +34,7 @@ s_lambda * new_lambda (s_symbol *type, s_symbol *name,
         return l;
 }
 
-u_form * apply (s_lambda *lambda, u_form *args, s_env *env)
+u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
 {
         s_frame *frame = env->frame;
         u_form *f = lambda->lambda_list;
@@ -50,7 +50,7 @@ u_form * apply (s_lambda *lambda, u_form *args, s_env *env)
         if (consp(f) || consp(a))
                 return error("invalid number of arguments");
         env->frame = lambda->frame;
-        f = cfun_progn(lambda->body, env);
+        f = cspecial_progn(lambda->body, env);
         env->frame = frame;
         return f;
 }

@@ -17,27 +17,29 @@ u_form * cadar (u_form *form);
 u_form * caddr (u_form *form);
 u_form * assoc (u_form *item, u_form *alist);
 
-u_form * cfun_quote (u_form *args, s_env *env);
+u_form * cspecial_quote (u_form *args, s_env *env);
 u_form * cfun_atom (u_form *args, s_env *env);
 u_form * cfun_eq (u_form *args, s_env *env);
 u_form * cfun_car (u_form *args, s_env *env);
 u_form * cfun_cdr (u_form *args, s_env *env);
 u_form * cfun_cons (u_form *args, s_env *env);
-u_form * cfun_cond (u_form *args, s_env *env);
+u_form * cspecial_cond (u_form *args, s_env *env);
 
-u_form * cfun_progn (u_form *form, s_env *env);
+u_form * cspecial_progn (u_form *form, s_env *env);
 u_form * cfun_find (u_form *args, s_env *env);
 u_form * cfun_assoc (u_form *args, s_env *env);
 
-u_form * cfun_let (u_form *args, s_env *env);
-u_form * cfun_defvar (u_form *args, s_env *env);
-u_form * cfun_defparameter (u_form *args, s_env *env);
-u_form * cfun_setq (u_form *args, s_env *env);
+u_form * cspecial_let (u_form *args, s_env *env);
+u_form * cspecial_defvar (u_form *args, s_env *env);
+u_form * cspecial_defparameter (u_form *args, s_env *env);
+u_form * cspecial_setq (u_form *args, s_env *env);
 
-u_form * cfun_lambda (u_form *args, s_env *env);
-u_form * cfun_defun (u_form *args, s_env *env);
-u_form * cfun_function (u_form *args, s_env *env);
+u_form * cspecial_lambda (u_form *args, s_env *env);
+u_form * cspecial_defun (u_form *args, s_env *env);
+u_form * cspecial_function (u_form *args, s_env *env);
+u_form * cfun_apply (u_form *args, s_env *env);
 
 u_form * eval (u_form *form, s_env *env);
+u_form * apply (u_form *fun, u_form *args, s_env *env);
 
 #endif
