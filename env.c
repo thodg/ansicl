@@ -146,8 +146,10 @@ u_form * let_star (u_form *bindings, u_form *body, s_env *env)
                                 value = eval(cadar(bindings), env);
                 } else
                         name = bindings->cons.car;
-                if (!symbolp(name))
+                if (!symbolp(name)) {
+                        env->frame = frame;
                         return error("invalid let* binding");
+                }
                 frame_new_variable(&name->symbol, value, f);
                 bindings = bindings->cons.cdr;
         }
