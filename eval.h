@@ -30,6 +30,7 @@ u_form * cfun_find (u_form *args, s_env *env);
 u_form * cfun_assoc (u_form *args, s_env *env);
 
 u_form * cspecial_let (u_form *args, s_env *env);
+u_form * cspecial_let_star (u_form *args, s_env *env);
 u_form * cspecial_defvar (u_form *args, s_env *env);
 u_form * cspecial_defparameter (u_form *args, s_env *env);
 u_form * cspecial_setq (u_form *args, s_env *env);

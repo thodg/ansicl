@@ -133,7 +133,9 @@ u_form * defparameter (s_symbol *name, u_form *value, s_env *env)
 
 u_form * let_star (u_form *bindings, u_form *body, s_env *env)
 {
+        s_frame *frame = env->frame;
         s_frame *f = new_frame(env->frame);
+        u_form *r;
         env->frame = f;
         while (bindings && bindings->type == FORM_CONS) {
                 u_form *name;
@@ -149,7 +151,9 @@ u_form * let_star (u_form *bindings, u_form *body, s_env *env)
                 frame_new_variable(&name->symbol, value, f);
                 bindings = bindings->cons.cdr;
         }
-        return cspecial_progn(body, env);
+        r = cspecial_progn(body, env);
+        env->frame = frame;
+        return r;
 }
 
 u_form * let (u_form *bindings, u_form *body, s_env *env)
@@ -243,6 +247,7 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("find",  cfun_find);
         cfun("assoc", cfun_assoc);
         cspecial("let",          cspecial_let);
+        cspecial("let*",         cspecial_let_star);
         cspecial("defvar",       cspecial_defvar);
         cspecial("defparameter", cspecial_defparameter);
         cspecial("setq",         cspecial_setq);

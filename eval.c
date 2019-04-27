@@ -334,6 +334,14 @@ u_form * cspecial_let (u_form *args, s_env *env)
         return let(args->cons.car, args->cons.cdr, env);
 }
 
+u_form * cspecial_let_star (u_form *args, s_env *env)
+{
+        if (!args || args->type != FORM_CONS ||
+            !args->cons.cdr || args->cons.cdr->type != FORM_CONS)
+                return error("invalid let* form");
+        return let_star(args->cons.car, args->cons.cdr, env);
+}
+
 u_form * cspecial_defvar (u_form *args, s_env *env)
 {
         if (!args || args->type != FORM_CONS ||
