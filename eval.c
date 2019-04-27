@@ -397,11 +397,6 @@ u_form * last (u_form *x)
 
 u_form * apply (u_form *fun, u_form *args, s_env *env)
 {
-        u_form *l = last(args);
-        if (consp(l) && consp(l->cons.car)) {
-                l->cons.cdr = l->cons.car->cons.cdr;
-                l->cons.car = l->cons.car->cons.car;
-        }
         if (fun->type == FORM_SYMBOL)
                 fun = symbol_function_(&fun->symbol, env);
         if (fun->type == FORM_CFUN)
@@ -409,16 +404,21 @@ u_form * apply (u_form *fun, u_form *args, s_env *env)
         if (car(fun) == (u_form*) sym("lambda"))
                 fun = eval(fun, env);
         if (fun->type == FORM_CLOSURE) {
-                u_form *a = mapcar_eval(args, env);
-                return apply_lambda(fun->closure.lambda, a, env);
+                return apply_lambda(fun->closure.lambda, args, env);
         }
         return error("apply argument is not a function");
 }
 
 u_form * cfun_apply (u_form *args, s_env *env)
 {
+        u_form *l;
         if (!consp(args))
                 return error("invalid apply call");
+        l = last(args);
+        if (consp(l) && consp(l->cons.car)) {
+                l->cons.cdr = l->cons.car->cons.cdr;
+                l->cons.car = l->cons.car->cons.car;
+        }
         return apply(args->cons.car, args->cons.cdr, env);
 }
 
