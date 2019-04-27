@@ -43,7 +43,7 @@ u_form ** frame_variable (s_symbol *sym, s_frame *frame)
         while (frame) {
                 u_form *f;
                 f = assoc((u_form*) sym, frame->variables);
-                if (f && f->type == FORM_CONS)
+                if (consp(f))
                         return &f->cons.cdr;
                 frame = frame->parent;
         }
@@ -55,7 +55,7 @@ u_form ** frame_function (s_symbol *sym, s_frame *frame)
         while (frame) {
                 u_form *f;
                 f = assoc((u_form*) sym, frame->functions);
-                if (f && f->type == FORM_CONS)
+                if (consp(f))
                         return &f->cons.cdr;
                 frame = frame->parent;
         }
@@ -67,7 +67,7 @@ u_form ** frame_macro (s_symbol *sym, s_frame *frame)
         while (frame) {
                 u_form *f;
                 f = assoc((u_form*) sym, frame->macros);
-                if (f && f->type == FORM_CONS)
+                if (consp(f))
                         return &f->cons.cdr;
                 frame = frame->parent;
         }
@@ -99,7 +99,7 @@ u_form ** symbol_special (s_symbol *sym, s_env *env)
 {
         u_form *f;
         f = assoc((u_form*) sym, env->specials);
-        if (f && f->type == FORM_CONS)
+        if (consp(f))
                 return &f->cons.cdr;
         return NULL;
 }
@@ -137,7 +137,7 @@ u_form * let_star (u_form *bindings, u_form *body, s_env *env)
         s_frame *f = new_frame(env->frame);
         u_form *r;
         env->frame = f;
-        while (bindings && bindings->type == FORM_CONS) {
+        while (consp(bindings)) {
                 u_form *name;
                 u_form *value = nil();
                 if (consp(bindings->cons.car)) {
