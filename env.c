@@ -114,15 +114,10 @@ u_form * defvar (s_symbol *name, u_form *value, s_env *env)
 
 u_form * setq (s_symbol *name, u_form *value, s_env *env)
 {
-        u_form *f = nil();
-        s_frame *frame = env->frame;
-        while (frame && !consp(f)) {
-                f = assoc((u_form*) name, frame->variables);
-                frame = frame->parent;
-        }
-        if (!consp(f))
+        u_form **f = symbol_variable(name, env);
+        if (!f)
                 return error("unbound symbol %s", name->string->str);
-        f->cons.cdr = value;
+        *f = value;
         return value;
 }
 
