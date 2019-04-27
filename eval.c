@@ -317,9 +317,8 @@ u_form * cfun_assoc (u_form *args, s_env *env)
 
 u_form * cspecial_setq (u_form *args, s_env *env)
 {
-        if (!args || args->type != FORM_CONS ||
-            !args->cons.car || args->cons.car->type != FORM_SYMBOL ||
-            !args->cons.cdr || args->cons.cdr->type != FORM_CONS ||
+        if (!consp(args) || !symbolp(args->cons.car) ||
+            !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
                 return error("invalid arguments for setq");
         return setq(&args->cons.car->symbol,
