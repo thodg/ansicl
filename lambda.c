@@ -28,8 +28,7 @@ s_lambda * new_lambda (s_symbol *type, s_symbol *name,
                 l->name = name;
                 l->lambda_list = lambda_list;
                 l->body = body;
-                if (!(l->frame = new_frame(env->frame)))
-                        return NULL;
+                l->frame = env->frame;
         }
         return l;
 }
@@ -39,19 +38,18 @@ u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
         s_frame *frame = env->frame;
         u_form *f = lambda->lambda_list;
         u_form *a = args;
+        env->frame = new_frame(lambda->frame);
         while (consp(f) && consp(a)) {
                 s_symbol *sym = &f->cons.car->symbol;
                 if (!symbolp(sym))
                         return error("invalid lambda list");
-                frame_new_variable(sym, a->cons.car, lambda->frame);
+                frame_new_variable(sym, a->cons.car, env->frame);
                 f = f->cons.cdr;
                 a = a->cons.cdr;
         }
         if (consp(f) || consp(a))
                 return error("invalid number of arguments");
-        env->frame = lambda->frame;
         f = cspecial_progn(lambda->body, env);
         env->frame = frame;
         return f;
 }
-
