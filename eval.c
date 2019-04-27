@@ -406,6 +406,14 @@ u_form * apply (u_form *fun, u_form *args, s_env *env)
         return error("apply argument is not a function");
 }
 
+u_form * cfun_eval (u_form *args, s_env *env)
+{
+        if (!consp(args) ||
+            args->cons.cdr != nil())
+                return error("invalid arguments for eval");
+        return eval(args->cons.car, env);
+}
+
 u_form * cfun_apply (u_form *args, s_env *env)
 {
         u_form *l;

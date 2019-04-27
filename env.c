@@ -256,6 +256,7 @@ void env_init (s_env *env, s_standard_input *si)
         cspecial("lambda",       cspecial_lambda);
         cspecial("defun",        cspecial_defun);
         cspecial("function",     cspecial_function);
+        cfun("eval", cfun_eval);
         cfun("apply", cfun_apply);
 }
 
