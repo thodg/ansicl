@@ -154,8 +154,10 @@ u_form * let_star (u_form *bindings, u_form *body, s_env *env)
 
 u_form * let (u_form *bindings, u_form *body, s_env *env)
 {
+        s_frame *frame = env->frame;
         s_frame *f = new_frame(env->frame);
-        while (bindings && bindings->type == FORM_CONS) {
+        u_form *r;
+        while (consp(bindings)) {
                 u_form *name;
                 u_form *value = nil();
                 if (consp(bindings->cons.car)) {
@@ -170,7 +172,9 @@ u_form * let (u_form *bindings, u_form *body, s_env *env)
                 bindings = bindings->cons.cdr;
         }
         env->frame = f;
-        return cspecial_progn(body, env);
+        r = cspecial_progn(body, env);
+        env->frame = frame;
+        return r;
 }
 
 void cfun (const char *name, f_cfun *fun)
