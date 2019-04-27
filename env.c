@@ -245,7 +245,7 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("cdr",   cfun_cdr);
         cfun("cons",  cfun_cons);
         cspecial("cond",         cspecial_cond);
-        cspecial("progn", cspecial_progn);
+        cspecial("progn",        cspecial_progn);
         cfun("find",  cfun_find);
         cfun("assoc", cfun_assoc);
         cspecial("let",          cspecial_let);
