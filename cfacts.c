@@ -19,7 +19,8 @@ int repl (s_env *env)
                         break;
                 }
                 u_form *e = eval(r, env);
-                print(e);
+                prin1(e);
+                puts("");
         }
         return 0;
 }

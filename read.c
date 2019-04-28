@@ -18,7 +18,7 @@ int refill (s_standard_input *si)
         while (!si->s || si->start == si->end) {
                 if (si->s)
                         free(si->s);
-                si->s = readline("\ncfacts> ");
+                si->s = readline("cfacts> ");
                 if (!si->s)
                         return -1;
                 add_history(si->s);

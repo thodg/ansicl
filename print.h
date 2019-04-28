@@ -3,6 +3,6 @@
 
 #include "form.h"
 
-void print (u_form *f);
+void prin1 (u_form *f);
 
 #endif

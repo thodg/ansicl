@@ -5,7 +5,7 @@
 #include "package.h"
 #include "print.h"
 
-void print_cons (s_cons *cons)
+void prin1_cons (s_cons *cons)
 {
         u_form *quote_sym = NULL;
         if (!quote_sym)
@@ -13,24 +13,24 @@ void print_cons (s_cons *cons)
         if (cons->car == quote_sym && cons->cdr->type == FORM_CONS &&
             cons->cdr->cons.cdr == nil()) {
                 putchar('\'');
-                print(cons->cdr->cons.car);
+                prin1(cons->cdr->cons.car);
                 return;
         }
         putchar('(');
-        print(cons->car);
+        prin1(cons->car);
         while (cons->cdr && cons->cdr->type == FORM_CONS) {
                 putchar(' ');
                 cons = &cons->cdr->cons;
-                print(cons->car);
+                prin1(cons->car);
         }
         if (cons->cdr != nil()) {
                 fputs(" . ", stdout);
-                print(cons->cdr);
+                prin1(cons->cdr);
         }
         fputs(")", stdout);
 }
 
-void print_string (s_string *s)
+void prin1_string (s_string *s)
 {
         unsigned long len = s->length;
         char *c = s->str;
@@ -43,57 +43,57 @@ void print_string (s_string *s)
         fputs("\"", stdout);
 }
 
-void print_symbol (s_symbol *sym)
+void prin1_symbol (s_symbol *sym)
 {
         fputs(sym->string->str, stdout);
 }
 
-void print_package (s_package *pkg)
+void prin1_package (s_package *pkg)
 {
         fputs("#<package ", stdout);
         fputs(pkg->name->string->str, stdout);
         fputs(">", stdout);
 }
 
-void print_cfun (s_cfun *cf)
+void prin1_cfun (s_cfun *cf)
 {
         fputs("#<cfun ", stdout);
         fputs(cf->name->string->str, stdout);
         fputs(">", stdout);
 }
 
-void print_closure (s_closure *c)
+void prin1_closure (s_closure *c)
 {
         fputs("#<", stdout);
-        print_symbol(c->lambda->type);
+        prin1_symbol(c->lambda->type);
         fputs(" ", stdout);
-        print_symbol(c->lambda->name);
+        prin1_symbol(c->lambda->name);
         fputs(">", stdout);
 }
 
-void print (u_form *f)
+void prin1 (u_form *f)
 {
         if (!f) {
                 return;
         }
         switch (f->type) {
         case FORM_CONS:
-                print_cons((s_cons*)f);
+                prin1_cons((s_cons*)f);
                 break;
         case FORM_STRING:
-                print_string((s_string*)f);
+                prin1_string((s_string*)f);
                 break;
         case FORM_SYMBOL:
-                print_symbol((s_symbol*)f);
+                prin1_symbol((s_symbol*)f);
                 break;
         case FORM_PACKAGE:
-                print_package((s_package*)f);
+                prin1_package((s_package*)f);
                 break;
         case FORM_CFUN:
-                print_cfun((s_cfun*)f);
+                prin1_cfun((s_cfun*)f);
                 break;
         case FORM_CLOSURE:
-                print_closure((s_closure*)f);
+                prin1_closure((s_closure*)f);
                 break;
         default:
                 error("unknown form type");
