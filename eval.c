@@ -50,13 +50,6 @@ u_form * eval_variable (u_form *form, s_env *env)
         return NULL;
 }
 
-u_form * eval_macro (u_form *form, s_env *env)
-{
-        (void) form;
-        (void) env;
-        return NULL;
-}
-
 u_form * mapcar_eval (u_form *list, s_env *env)
 {
         u_form *head = nil();
@@ -83,14 +76,16 @@ u_form * eval_beta (u_form *form, s_env *env)
         return NULL;
 }
 
-u_form * eval_function (u_form *form, s_env *env)
+u_form * eval_call (u_form *form, s_env *env)
 {
         if (consp(form) && symbolp(form->cons.car)) {
                 s_symbol *sym = &form->cons.car->symbol;
-                u_form **f = symbol_special(sym, env);
+                u_form **f;
                 u_form *a;
-                if (f)
+                if ((f = symbol_special(sym, env)))
                         return (*f)->cfun.fun(form->cons.cdr, env);
+                if ((f = symbol_macro(sym, env)))
+                        return eval(apply(*f, form->cons.cdr, env), env);
                 if (!(f = symbol_function(sym, env)))
                         return error("function not bound: %s",
                                      sym->string->str);
@@ -433,8 +428,7 @@ u_form * eval (u_form *form, s_env *env)
         if ((f = eval_nil(form))) return f;
         if ((f = eval_t(form))) return f;
         if ((f = eval_variable(form, env))) return f;
-        if ((f = eval_macro(form, env))) return f;
-        if ((f = eval_function(form, env))) return f;
+        if ((f = eval_call(form, env))) return f;
         if ((f = eval_beta(form, env))) return f;
         return form;
 }
