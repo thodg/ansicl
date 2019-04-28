@@ -222,7 +222,10 @@ u_form * defun (s_symbol *name, u_form *lambda_list, u_form *body,
 
 u_form * function (s_symbol *name, s_env *env)
 {
-        return *frame_function(name, env->frame);
+        u_form **f = frame_function(name, env->frame);
+        if (f)
+                return *f;
+        return nil();
 }
 
 u_form * defmacro (s_symbol *name, u_form *lambda_list, u_form *body)
