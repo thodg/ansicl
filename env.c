@@ -228,10 +228,13 @@ u_form * function (s_symbol *name, s_env *env)
         return nil();
 }
 
-u_form * defmacro (s_symbol *name, u_form *lambda_list, u_form *body)
+u_form * defmacro (s_symbol *name, u_form *lambda_list, u_form *body,
+                   s_env *env)
 {
-        (void) lambda_list;
-        (void) body;
+        s_lambda *l = new_lambda(sym("macro"), name, lambda_list,
+                                 body, env);
+        s_closure *c = new_closure(l);
+        frame_new_macro(name, (u_form*) c, env->global_frame);
         return (u_form*) name;
 }
 
@@ -259,6 +262,7 @@ void env_init (s_env *env, s_standard_input *si)
         cspecial("lambda",       cspecial_lambda);
         cspecial("defun",        cspecial_defun);
         cspecial("function",     cspecial_function);
+        cspecial("defmacro",     cspecial_defmacro);
         cfun("eval", cfun_eval);
         cfun("apply", cfun_apply);
 }

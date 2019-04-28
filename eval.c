@@ -378,6 +378,16 @@ u_form * cspecial_function (u_form *args, s_env *env)
         return function(&args->cons.car->symbol, env);
 }
 
+u_form * cspecial_defmacro (u_form *args, s_env *env)
+{
+        if (!consp(args) || !symbolp(args->cons.car) ||
+            !consp(args->cons.cdr))
+                return error("invalid defmacro form");
+        return defmacro(&args->cons.car->symbol,
+                        args->cons.cdr->cons.car,
+                        args->cons.cdr->cons.cdr, env);
+}
+
 u_form * last (u_form *x)
 {
         if (!consp(x))
