@@ -113,6 +113,42 @@ u_form * cspecial_quote (u_form *args, s_env *env)
         return args->cons.car;
 }
 
+u_form * backquote (u_form *x)
+{
+        static u_form *backquote_sym = NULL;
+        if (!backquote_sym)
+                backquote_sym = (u_form*) sym("backquote");
+        return (u_form*) new_cons(backquote_sym,
+                                  (u_form*) new_cons(x, nil()));
+}
+
+u_form * comma_at (u_form *x)
+{
+        static u_form *comma_at_sym = NULL;
+        if (!comma_at_sym)
+                comma_at_sym = (u_form*) sym("comma_at");
+        return (u_form*) new_cons(comma_at_sym,
+                                  (u_form*) new_cons(x, nil()));
+}
+
+u_form * comma_dot (u_form *x)
+{
+        static u_form *comma_dot_sym = NULL;
+        if (!comma_dot_sym)
+                comma_dot_sym = (u_form*) sym("comma_dot");
+        return (u_form*) new_cons(comma_dot_sym,
+                                  (u_form*) new_cons(x, nil()));
+}
+
+u_form * comma (u_form *x)
+{
+        static u_form *comma_sym = NULL;
+        if (!comma_sym)
+                comma_sym = (u_form*) sym("comma");
+        return (u_form*) new_cons(comma_sym,
+                                  (u_form*) new_cons(x, nil()));
+}
+
 u_form * atom (u_form *form)
 {
         static u_form *t = NULL;

@@ -17,6 +17,11 @@ u_form * cadar (u_form *form);
 u_form * caddr (u_form *form);
 u_form * assoc (u_form *item, u_form *alist);
 
+u_form * backquote (u_form *form);
+u_form * comma_at (u_form *form);
+u_form * comma_dot (u_form *form);
+u_form * comma (u_form *form);
+
 u_form * cspecial_quote (u_form *args, s_env *env);
 u_form * cfun_atom (u_form *args, s_env *env);
 u_form * cfun_eq (u_form *args, s_env *env);

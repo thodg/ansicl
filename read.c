@@ -163,12 +163,44 @@ u_form * read_quote (s_standard_input *si)
         return NULL;
 }
 
+u_form * read_backquote (s_standard_input *si)
+{
+        if (peek_char(si) == '`') {
+                read_char(si);
+                u_form *f = backquote(read_form(si));
+                return f;
+        }
+        return NULL;
+}
+
+u_form * read_comma (s_standard_input *si)
+{
+        if (peek_char(si) == ',') {
+                read_char(si);
+                switch (peek_char(si)) {
+                case '@':
+                        read_char(si);
+                        return comma_at(read_form(si));
+                case '.':
+                        read_char(si);
+                        return comma_dot(read_form(si));
+                default:
+                        return comma(read_form(si));
+                }
+        }
+        return NULL;
+}
+
 u_form * read_form (s_standard_input *si)
 {
         u_form *f;
         if (read_spaces(si))
                 return NULL;
         if ((f = read_quote(si)))
+                return f;
+        if ((f = read_backquote(si)))
+                return f;
+        if ((f = read_comma(si)))
                 return f;
         if ((f = read_cons(si)))
                 return f;
