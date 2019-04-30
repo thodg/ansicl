@@ -140,7 +140,7 @@ u_form * read_symbol (s_standard_input *si)
         unsigned long i = si->start;
         unsigned long j = i;
         while (i < si->end && si->s[i] != '(' && si->s[i] != ')'
-               && si->s[i] != '.' && si->s[i] != '"' && si->s[i] != ' '
+               && si->s[i] != '"' && si->s[i] != ' '
                && si->s[i] != '\t' && si->s[i] != '\r'
                && si->s[i] != '\n' && si->s[i] != '\'') {
                 j = i;
