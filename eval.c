@@ -263,6 +263,21 @@ u_form * cspecial_progn (u_form *form, s_env *env)
         return f;
 }
 
+u_form * cfun_make_symbol (u_form *args, s_env *env)
+{
+        (void) env;
+        if (!consp(args) || !stringp(args->cons.car) ||
+            args->cons.cdr != nil())
+                return error("invalid arguments for make-symbol");
+        return (u_form*) new_symbol(&args->cons.car->string);
+}
+
+u_form * cfun_list (u_form *args, s_env *env)
+{
+        (void) env;
+        return args;
+}
+
 u_form * find (u_form *item, u_form *list)
 {
         while (consp(list)) {
@@ -302,6 +317,23 @@ u_form * cfun_assoc (u_form *args, s_env *env)
                 return error("invalid arguments for assoc");
         return assoc(args->cons.car,
                      args->cons.cdr->cons.car);
+}
+
+u_form * last (u_form *x)
+{
+        if (!consp(x))
+                return nil();
+        while (consp(x) && consp(x->cons.cdr))
+                x = x->cons.cdr;
+        return x;
+}
+
+u_form * cfun_last (u_form *args, s_env *env)
+{
+        (void) env;
+        if (!consp(args) || args->cons.cdr != nil())
+                return error("invalid arguments for last");
+        return (u_form*) last(args->cons.car);
 }
 
 u_form * cspecial_setq (u_form *args, s_env *env)

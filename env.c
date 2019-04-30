@@ -179,15 +179,18 @@ void env_init (s_env *env, s_standard_input *si)
         env->frame = env->global_frame = new_frame(NULL);
         env->specials = nil();
         cspecial("quote",        cspecial_quote);
-        cfun("atom",  cfun_atom);
-        cfun("eq",    cfun_eq);
-        cfun("car",   cfun_car);
-        cfun("cdr",   cfun_cdr);
-        cfun("cons",  cfun_cons);
+        cfun("atom",        cfun_atom);
+        cfun("eq",          cfun_eq);
+        cfun("car",         cfun_car);
+        cfun("cdr",         cfun_cdr);
+        cfun("cons",        cfun_cons);
         cspecial("cond",         cspecial_cond);
         cspecial("progn",        cspecial_progn);
-        cfun("find",  cfun_find);
-        cfun("assoc", cfun_assoc);
+        cfun("make-symbol", cfun_make_symbol);
+        cfun("list",        cfun_list);
+        cfun("find",        cfun_find);
+        cfun("assoc",       cfun_assoc);
+        cfun("last",        cfun_last);
         cspecial("let",          cspecial_let);
         cspecial("let*",         cspecial_let_star);
         cspecial("defvar",       cspecial_defvar);
@@ -197,8 +200,10 @@ void env_init (s_env *env, s_standard_input *si)
         cspecial("defun",        cspecial_defun);
         cspecial("function",     cspecial_function);
         cspecial("defmacro",     cspecial_defmacro);
-        cfun("eval", cfun_eval);
-        cfun("apply", cfun_apply);
+        cspecial("return_from",  cspecial_return_from);
+        cspecial("return",       cspecial_return);
+        cfun("eval",        cfun_eval);
+        cfun("apply",       cfun_apply);
 }
 
 s_frame * push_frame (s_env *env)
