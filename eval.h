@@ -47,6 +47,7 @@ u_form * cspecial_lambda (u_form *args, s_env *env);
 u_form * cspecial_defun (u_form *args, s_env *env);
 u_form * cspecial_function (u_form *args, s_env *env);
 u_form * cspecial_defmacro (u_form *args, s_env *env);
+u_form * cspecial_block (u_form *args, s_env *env);
 u_form * cspecial_return_from (u_form *args, s_env *env);
 u_form * cspecial_return (u_form *args, s_env *env);
 

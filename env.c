@@ -200,7 +200,8 @@ void env_init (s_env *env, s_standard_input *si)
         cspecial("defun",        cspecial_defun);
         cspecial("function",     cspecial_function);
         cspecial("defmacro",     cspecial_defmacro);
-        cspecial("return_from",  cspecial_return_from);
+        cspecial("block",        cspecial_block);
+        cspecial("return-from",  cspecial_return_from);
         cspecial("return",       cspecial_return);
         cfun("eval",        cfun_eval);
         cfun("apply",       cfun_apply);

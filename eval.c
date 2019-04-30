@@ -457,6 +457,14 @@ u_form * cspecial_defmacro (u_form *args, s_env *env)
                         args->cons.cdr->cons.cdr, env);
 }
 
+u_form * cspecial_block (u_form *args, s_env *env)
+{
+        if (!consp(args) || !symbolp(args->cons.car))
+                return error("invalid block form");
+        return block(&args->cons.car->symbol,
+                     args->cons.cdr, env);
+}
+
 u_form * cspecial_return_from (u_form *args, s_env *env)
 {
         s_symbol *block_name;
