@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include "block.h"
 #include "env.h"
 #include "eval.h"
 #include "lambda.h"
@@ -49,7 +50,12 @@ u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
         }
         if (consp(f) || consp(a))
                 return error("invalid number of arguments");
+        if ((f = block(&nil()->symbol, env))) {
+                env->frame = frame;
+                return f;
+        }
         f = cspecial_progn(lambda->body, env);
+        block_pop(&nil()->symbol, env);
         env->frame = frame;
         return f;
 }

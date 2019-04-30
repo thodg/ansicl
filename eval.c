@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "block.h"
 #include "env.h"
 #include "eval.h"
 #include "lambda.h"
@@ -388,13 +389,29 @@ u_form * cspecial_defmacro (u_form *args, s_env *env)
                         args->cons.cdr->cons.cdr, env);
 }
 
-u_form * last (u_form *x)
+u_form * cspecial_return_from (u_form *args, s_env *env)
 {
-        if (!consp(x))
-                return nil();
-        while (consp(x) && consp(x->cons.cdr))
-                x = x->cons.cdr;
-        return x;
+        s_symbol *block_name;
+        u_form *value = nil();
+        if (!consp(args) || !symbolp(args->cons.car) ||
+            consp(cddr(args)))
+                return error("invalid return_from form");
+        block_name = &args->cons.car->symbol;
+        if (consp(args->cons.cdr))
+                value = eval(args->cons.cdr->cons.car, env);
+        return_from(block_name, value, env);
+        return nil();
+}
+
+u_form * cspecial_return (u_form *args, s_env *env)
+{
+        u_form *value = nil();
+        if (consp(cdr(args)))
+                return error("invalid return form");
+        if (consp(args))
+                value = eval(args->cons.car, env);
+        return_from(&nil()->symbol, value, env);
+        return nil();
 }
 
 u_form * apply (u_form *fun, u_form *args, s_env *env)

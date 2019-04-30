@@ -13,6 +13,7 @@ typedef struct env
         s_frame *frame;
         s_frame *global_frame;
         u_form *specials;
+        s_block *blocks;
 } s_env;
 
 extern s_env g_env;
