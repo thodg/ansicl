@@ -5,14 +5,12 @@
 #include "env.h"
 #include "eval.h"
 
-s_block * push_block (s_symbol *name, s_env *env)
+void push_block (s_block *b, s_symbol *name, s_env *env)
 {
-        s_block *b = malloc(sizeof(s_block));
         b->name = name;
         b->return_value = nil();
         b->next = env->blocks;
         env->blocks = b;
-        return b;
 }
 
 s_block ** find_block (s_symbol *name, s_env *env)
@@ -26,12 +24,18 @@ s_block ** find_block (s_symbol *name, s_env *env)
         return NULL;
 }
 
-u_form * block (s_symbol *name, s_env *env)
+u_form * block (s_symbol *name, u_form *progn, s_env *env)
 {
-        s_block *b = push_block(name, env);
-        if (setjmp(b->buf))
-                return b->return_value;
-        return NULL;
+        s_block block;
+        u_form *f;
+        push_block(&block, name, env);
+        if (setjmp(block.buf)) {
+                block_pop(name, env);
+                return block.return_value;
+        }
+        f = cspecial_progn(progn, env);
+        block_pop(name, env);
+        return f;
 }
 
 u_form * block_pop (s_symbol *name, s_env *env)

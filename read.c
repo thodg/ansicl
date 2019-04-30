@@ -132,8 +132,6 @@ u_form * read_string (s_standard_input *si)
         return NULL;
 }
 
-
-
 u_form * read_symbol (s_standard_input *si)
 {
         u_form *f;

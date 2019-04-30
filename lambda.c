@@ -39,6 +39,7 @@ u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
         s_frame *frame = env->frame;
         u_form *f = lambda->lambda_list;
         u_form *a = args;
+        s_block block;
         env->frame = new_frame(lambda->frame);
         while (consp(f) && consp(a)) {
                 s_symbol *sym = &f->cons.car->symbol;
@@ -50,9 +51,11 @@ u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
         }
         if (consp(f) || consp(a))
                 return error("invalid number of arguments");
-        if ((f = block(&nil()->symbol, env))) {
+        push_block(&block, &nil()->symbol, env);
+        if (setjmp(block.buf)) {
+                block_pop(&nil()->symbol, env);
                 env->frame = frame;
-                return f;
+                return block.return_value;
         }
         f = cspecial_progn(lambda->body, env);
         block_pop(&nil()->symbol, env);
