@@ -20,6 +20,7 @@ cfacts_SOURCES = \
 	eval.c \
 	form.c \
 	form_string.c \
+	frame.c \
 	lambda.c \
 	package.c \
 	print.c \
