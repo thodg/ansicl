@@ -50,6 +50,8 @@ u_form * cspecial_block (u_form *args, s_env *env);
 u_form * cspecial_return_from (u_form *args, s_env *env);
 u_form * cspecial_return (u_form *args, s_env *env);
 
+u_form * cfun_error (u_form *args, s_env *env);
+
 u_form * cfun_eval (u_form *args, s_env *env);
 u_form * cfun_apply (u_form *args, s_env *env);
 

@@ -204,6 +204,7 @@ void env_init (s_env *env, s_standard_input *si)
         cspecial("block",        cspecial_block);
         cspecial("return-from",  cspecial_return_from);
         cspecial("return",       cspecial_return);
+        cfun("error",       cfun_error);
         cfun("eval",        cfun_eval);
         cfun("apply",       cfun_apply);
 }

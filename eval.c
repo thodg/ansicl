@@ -478,6 +478,14 @@ u_form * cspecial_return (u_form *args, s_env *env)
         return nil();
 }
 
+u_form * cfun_error (u_form *args, s_env *env)
+{
+        if (!consp(args) || !stringp(args->cons.car) ||
+            args->cons.cdr != nil())
+                return error(env, "invalid arguments for error");
+        return error_(&args->cons.car->string, env);
+}
+
 u_form * apply (u_form *fun, u_form *args, s_env *env)
 {
         if (fun->type == FORM_SYMBOL)
@@ -490,14 +498,6 @@ u_form * apply (u_form *fun, u_form *args, s_env *env)
                 return apply_lambda(fun->closure.lambda, args, env);
         }
         return error(env, "apply argument is not a function");
-}
-
-u_form * cfun_eval (u_form *args, s_env *env)
-{
-        if (!consp(args) ||
-            args->cons.cdr != nil())
-                return error(env, "invalid arguments for eval");
-        return eval(args->cons.car, env);
 }
 
 u_form * cfun_apply (u_form *args, s_env *env)
@@ -522,4 +522,12 @@ u_form * eval (u_form *form, s_env *env)
         if ((f = eval_call(form, env))) return f;
         if ((f = eval_beta(form, env))) return f;
         return form;
+}
+
+u_form * cfun_eval (u_form *args, s_env *env)
+{
+        if (!consp(args) ||
+            args->cons.cdr != nil())
+                return error(env, "invalid arguments for eval");
+        return eval(args->cons.car, env);
 }

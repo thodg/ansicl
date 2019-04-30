@@ -16,6 +16,17 @@ void pop_error_handler (s_env *env)
                 env->error_handler = env->error_handler->next;
 }
 
+u_form * error_ (s_string *str, s_env *env)
+{
+        s_error_handler *eh = env->error_handler;
+        if (eh) {
+                eh->string = str;
+                longjmp(eh->buf, 1);
+        }
+        fprintf(stderr, "cfacts: %s\n", str->str);
+        return nil();
+}
+
 u_form * error (s_env *env, const char *msg, ...)
 {
         va_list ap;
@@ -24,10 +35,5 @@ u_form * error (s_env *env, const char *msg, ...)
         va_start(ap, msg);
         len = vasprintf(&buf, msg, ap);
         va_end(ap);
-        if (env->error_handler) {
-                env->error_handler->string = new_string(len, buf);
-                longjmp(env->error_handler->buf, 1);
-        }
-        fprintf(stderr, "cfacts: %s\n", buf);
-        return nil();
+        return error_(new_string(len, buf), env);
 }
