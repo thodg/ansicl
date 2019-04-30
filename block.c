@@ -3,6 +3,7 @@
 #include <setjmp.h>
 #include "block.h"
 #include "env.h"
+#include "error.h"
 #include "eval.h"
 
 void push_block (s_block *b, s_symbol *name, s_env *env)
@@ -43,7 +44,7 @@ u_form * block_pop (s_symbol *name, s_env *env)
         s_block **pb = find_block(name, env);
         s_block *b;
         if (!pb)
-                return error("no block named %s", name->string->str);
+                return error(env, "no block named %s", name->string->str);
         b = *pb;
         *pb = (*pb)->next;
         return b->return_value;
@@ -53,7 +54,8 @@ void return_from (s_symbol *name, u_form *value, s_env *env)
 {
         s_block **pb = find_block(name, env);
         if (!pb) {
-                error("return from unknown block %s", name->string->str);
+                error(env, "return from unknown block %s",
+                      name->string->str);
                 return;
         }
         (*pb)->return_value = value;

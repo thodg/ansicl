@@ -3,6 +3,7 @@
 
 #include "form.h"
 
-void prin1 (u_form *f);
+void prin1 (u_form *f, s_env *env);
+void print (u_form *f, s_env *env);
 
 #endif

@@ -1,23 +1,11 @@
 
-#include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "block.h"
 #include "env.h"
+#include "error.h"
 #include "eval.h"
 #include "lambda.h"
 #include "package.h"
-
-u_form * error (const char *msg, ...)
-{
-        va_list ap;
-        va_start(ap, msg);
-        fprintf(stderr, "cfacts: ");
-        vfprintf(stderr, msg, ap);
-        fprintf(stderr, "\n");
-        va_end(ap);
-        return nil();
-}
 
 u_form * eval_nil (u_form *form)
 {
@@ -44,7 +32,7 @@ u_form * eval_variable (u_form *form, s_env *env)
         if (symbolp(form)) {
                 u_form **f = symbol_variable(&form->symbol, env);
                 if (!f)
-                        return error("symbol not bound: %s",
+                        return error(env, "symbol not bound: %s",
                                      form->symbol.string->str);
                 return *f;
         }
@@ -88,7 +76,7 @@ u_form * eval_call (u_form *form, s_env *env)
                 if ((f = symbol_macro(sym, env)))
                         return eval(apply(*f, form->cons.cdr, env), env);
                 if (!(f = symbol_function(sym, env)))
-                        return error("function not bound: %s",
+                        return error(env, "function not bound: %s",
                                      sym->string->str);
                 a = mapcar_eval(form->cons.cdr, env);
                 return apply(*f, a, env);
@@ -109,7 +97,7 @@ u_form * cspecial_quote (u_form *args, s_env *env)
 {
         (void) env;
         if (!consp(args) || args->cons.cdr != nil())
-                return error("invalid arguments for quote");
+                return error(env, "invalid arguments for quote");
         return args->cons.car;
 }
 
@@ -163,7 +151,7 @@ u_form * cfun_atom (u_form *args, s_env *env)
 {
         (void) env;
         if (!consp(args) || args->cons.cdr != nil())
-                return error("invalid arguments for atom");
+                return error(env, "invalid arguments for atom");
         return atom(args->cons.car);
 }
 
@@ -181,7 +169,7 @@ u_form * cfun_eq (u_form *args, s_env *env)
         (void) env;
         if (!consp(args) || !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
-                return error("invalid arguments for eq");
+                return error(env, "invalid arguments for eq");
         return eq(args->cons.car,
                   args->cons.cdr->cons.car);
 }
@@ -197,7 +185,7 @@ u_form * cfun_car (u_form *args, s_env *env)
 {
         (void) env;
         if (!consp(args) || args->cons.cdr != nil())
-                return error("invalid arguments for car");
+                return error(env, "invalid arguments for car");
         return car(args->cons.car);
 }
 
@@ -212,7 +200,7 @@ u_form * cfun_cdr (u_form *args, s_env *env)
 {
         (void) env;
         if (!consp(args) || args->cons.cdr != nil())
-                return error("invalid arguments for cdr");
+                return error(env, "invalid arguments for cdr");
         return cdr(args->cons.car);
 }
 
@@ -265,7 +253,7 @@ u_form * cfun_cons (u_form *args, s_env *env)
         (void) env;
         if (!consp(args) || !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
-                return error("invalid arguments for cons");
+                return error(env, "invalid arguments for cons");
         return (u_form*) new_cons(args->cons.car,
                                   args->cons.cdr->cons.car);
 }
@@ -275,7 +263,7 @@ u_form * cspecial_cond (u_form *args, s_env *env)
         while (consp(args)) {
                 u_form *f;
                 if (!consp(args->cons.car))
-                        return error("invalid cond form");
+                        return error(env, "invalid cond form");
                 f = eval(args->cons.car->cons.car, env);
                 if (f != nil())
                         return cspecial_progn(args->cons.car->cons.cdr,
@@ -283,7 +271,7 @@ u_form * cspecial_cond (u_form *args, s_env *env)
                 args = args->cons.cdr;
         }
         if (args && args->type != FORM_CONS)
-                return error("invalid cond form");
+                return error(env, "invalid cond form");
         return nil();
 }
 
@@ -295,7 +283,7 @@ u_form * cspecial_progn (u_form *form, s_env *env)
                 form = form->cons.cdr;
         }
         if (form != nil())
-                return error("malformed progn");
+                return error(env, "malformed progn");
         return f;
 }
 
@@ -304,7 +292,7 @@ u_form * cfun_make_symbol (u_form *args, s_env *env)
         (void) env;
         if (!consp(args) || !stringp(args->cons.car) ||
             args->cons.cdr != nil())
-                return error("invalid arguments for make-symbol");
+                return error(env, "invalid arguments for make-symbol");
         return (u_form*) new_symbol(&args->cons.car->string);
 }
 
@@ -329,7 +317,7 @@ u_form * cfun_find (u_form *args, s_env *env)
         (void) env;
         if (!consp(args) || !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
-                return error("invalid arguments for find");
+                return error(env, "invalid arguments for find");
         return find(args->cons.car,
                     args->cons.cdr->cons.car);
 }
@@ -350,7 +338,7 @@ u_form * cfun_assoc (u_form *args, s_env *env)
         (void) env;
         if (!consp(args) || !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
-                return error("invalid arguments for assoc");
+                return error(env, "invalid arguments for assoc");
         return assoc(args->cons.car,
                      args->cons.cdr->cons.car);
 }
@@ -368,7 +356,7 @@ u_form * cfun_last (u_form *args, s_env *env)
 {
         (void) env;
         if (!consp(args) || args->cons.cdr != nil())
-                return error("invalid arguments for last");
+                return error(env, "invalid arguments for last");
         return (u_form*) last(args->cons.car);
 }
 
@@ -377,7 +365,7 @@ u_form * cspecial_setq (u_form *args, s_env *env)
         if (!consp(args) || !symbolp(args->cons.car) ||
             !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
-                return error("invalid arguments for setq");
+                return error(env, "invalid arguments for setq");
         return setq(&args->cons.car->symbol,
                     eval(args->cons.cdr->cons.car, env),
                     env);
@@ -386,14 +374,14 @@ u_form * cspecial_setq (u_form *args, s_env *env)
 u_form * cspecial_let (u_form *args, s_env *env)
 {
         if (!consp(args) || !consp(args->cons.cdr))
-                return error("invalid let form");
+                return error(env, "invalid let form");
         return let(args->cons.car, args->cons.cdr, env);
 }
 
 u_form * cspecial_let_star (u_form *args, s_env *env)
 {
         if (!consp(args) || !consp(args->cons.cdr))
-                return error("invalid let* form");
+                return error(env, "invalid let* form");
         return let_star(args->cons.car, args->cons.cdr, env);
 }
 
@@ -402,7 +390,7 @@ u_form * cspecial_defvar (u_form *args, s_env *env)
         if (!consp(args) || !symbolp(args->cons.car) ||
             !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
-                return error("invalid arguments for defvar");
+                return error(env, "invalid arguments for defvar");
         return defvar(&args->cons.car->symbol,
                       eval(args->cons.cdr->cons.car, env),
                       env);
@@ -413,7 +401,7 @@ u_form * cspecial_defparameter (u_form *args, s_env *env)
         if (!consp(args) || !symbolp(args->cons.car) ||
             !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
-                return error("invalid arguments for defparameter");
+                return error(env, "invalid arguments for defparameter");
         return defparameter(&args->cons.car->symbol,
                             eval(args->cons.cdr->cons.car, env),
                             env);
@@ -422,7 +410,7 @@ u_form * cspecial_defparameter (u_form *args, s_env *env)
 u_form * cspecial_lambda (u_form *args, s_env *env)
 {
         if (!consp(args) || !consp(args->cons.cdr))
-                return error("invalid lambda form");
+                return error(env, "invalid lambda form");
         s_lambda *l = new_lambda(sym("lambda"), &nil()->symbol,
                                  args->cons.car, args->cons.cdr,
                                  env);
@@ -433,7 +421,7 @@ u_form * cspecial_defun (u_form *args, s_env *env)
 {
         if (!consp(args) || !symbolp(args->cons.car) ||
             !consp(args->cons.cdr))
-                return error("invalid defun form");
+                return error(env, "invalid defun form");
         return defun(&args->cons.car->symbol,
                      args->cons.cdr->cons.car,
                      args->cons.cdr->cons.cdr, env);
@@ -443,7 +431,7 @@ u_form * cspecial_function (u_form *args, s_env *env)
 {
         if (!consp(args) || !symbolp(args->cons.car) ||
             args->cons.cdr != nil())
-                return error("invalid function form");
+                return error(env, "invalid function form");
         return function(&args->cons.car->symbol, env);
 }
 
@@ -451,7 +439,7 @@ u_form * cspecial_defmacro (u_form *args, s_env *env)
 {
         if (!consp(args) || !symbolp(args->cons.car) ||
             !consp(args->cons.cdr))
-                return error("invalid defmacro form");
+                return error(env, "invalid defmacro form");
         return defmacro(&args->cons.car->symbol,
                         args->cons.cdr->cons.car,
                         args->cons.cdr->cons.cdr, env);
@@ -460,7 +448,7 @@ u_form * cspecial_defmacro (u_form *args, s_env *env)
 u_form * cspecial_block (u_form *args, s_env *env)
 {
         if (!consp(args) || !symbolp(args->cons.car))
-                return error("invalid block form");
+                return error(env, "invalid block form");
         return block(&args->cons.car->symbol,
                      args->cons.cdr, env);
 }
@@ -471,7 +459,7 @@ u_form * cspecial_return_from (u_form *args, s_env *env)
         u_form *value = nil();
         if (!consp(args) || !symbolp(args->cons.car) ||
             consp(cddr(args)))
-                return error("invalid return_from form");
+                return error(env, "invalid return_from form");
         block_name = &args->cons.car->symbol;
         if (consp(args->cons.cdr))
                 value = eval(args->cons.cdr->cons.car, env);
@@ -483,7 +471,7 @@ u_form * cspecial_return (u_form *args, s_env *env)
 {
         u_form *value = nil();
         if (consp(cdr(args)))
-                return error("invalid return form");
+                return error(env, "invalid return form");
         if (consp(args))
                 value = eval(args->cons.car, env);
         return_from(&nil()->symbol, value, env);
@@ -501,14 +489,14 @@ u_form * apply (u_form *fun, u_form *args, s_env *env)
         if (fun->type == FORM_CLOSURE) {
                 return apply_lambda(fun->closure.lambda, args, env);
         }
-        return error("apply argument is not a function");
+        return error(env, "apply argument is not a function");
 }
 
 u_form * cfun_eval (u_form *args, s_env *env)
 {
         if (!consp(args) ||
             args->cons.cdr != nil())
-                return error("invalid arguments for eval");
+                return error(env, "invalid arguments for eval");
         return eval(args->cons.car, env);
 }
 
@@ -516,7 +504,7 @@ u_form * cfun_apply (u_form *args, s_env *env)
 {
         u_form *l;
         if (!consp(args))
-                return error("invalid apply call");
+                return error(env, "invalid apply call");
         l = last(args);
         if (consp(l) && consp(l->cons.car)) {
                 l->cons.cdr = l->cons.car->cons.cdr;

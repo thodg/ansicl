@@ -18,6 +18,7 @@ cfacts_SOURCES = \
 	block.c \
 	cfacts.c \
 	env.c \
+	error.c \
 	eval.c \
 	form.c \
 	form_string.c \

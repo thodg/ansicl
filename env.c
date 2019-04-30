@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "env.h"
+#include "error.h"
 #include "eval.h"
 #include "lambda.h"
 #include "package.h"
@@ -50,7 +51,7 @@ u_form * setq (s_symbol *name, u_form *value, s_env *env)
 {
         u_form **f = symbol_variable(name, env);
         if (!f)
-                return error("unbound symbol %s", name->string->str);
+                return error(env, "unbound symbol %s", name->string->str);
         *f = value;
         return value;
 }
@@ -82,7 +83,7 @@ u_form * let_star (u_form *bindings, u_form *body, s_env *env)
                         name = bindings->cons.car;
                 if (!symbolp(name)) {
                         env->frame = frame;
-                        return error("invalid let* binding");
+                        return error(env, "invalid let* binding");
                 }
                 frame_new_variable(&name->symbol, value, f);
                 bindings = bindings->cons.cdr;
@@ -107,7 +108,7 @@ u_form * let (u_form *bindings, u_form *body, s_env *env)
                 } else
                         name = bindings->cons.car;
                 if (!symbolp(name))
-                        return error("invalid let binding");
+                        return error(env, "invalid let binding");
                 frame_new_variable(&name->symbol, value, f);
                 bindings = bindings->cons.cdr;
         }

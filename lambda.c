@@ -2,14 +2,15 @@
 #include <stdlib.h>
 #include "block.h"
 #include "env.h"
+#include "error.h"
 #include "eval.h"
 #include "lambda.h"
 
-int check_lambda_list (u_form *lambda_list)
+int check_lambda_list (u_form *lambda_list, s_env *env)
 {
         while (consp(lambda_list)) {
                 if (!symbolp(lambda_list->cons.car)) {
-                        error("malformed lambda list");
+                        error(env, "malformed lambda list");
                         return 1;
                 }
                 lambda_list = lambda_list->cons.cdr;
@@ -22,7 +23,7 @@ s_lambda * new_lambda (s_symbol *type, s_symbol *name,
                        s_env *env)
 {
         s_lambda *l;
-        if (check_lambda_list(lambda_list))
+        if (check_lambda_list(lambda_list, env))
                 return NULL;
         if ((l = malloc(sizeof(s_lambda)))) {
                 l->type = type;
@@ -44,13 +45,13 @@ u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
         while (consp(f) && consp(a)) {
                 s_symbol *sym = &f->cons.car->symbol;
                 if (!symbolp(sym))
-                        return error("invalid lambda list");
+                        return error(env, "invalid lambda list");
                 frame_new_variable(sym, a->cons.car, env->frame);
                 f = f->cons.cdr;
                 a = a->cons.cdr;
         }
         if (consp(f) || consp(a))
-                return error("invalid number of arguments");
+                return error(env, "invalid number of arguments");
         push_block(&block, &nil()->symbol, env);
         if (setjmp(block.buf)) {
                 block_pop(&nil()->symbol, env);

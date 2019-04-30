@@ -4,6 +4,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "env.h"
+#include "error.h"
 #include "form.h"
 #include "package.h"
 #include "read.h"
@@ -13,14 +14,24 @@
 int repl (s_env *env)
 {
         while (env->run) {
-                u_form *r = read_form(env->si);
-                if (!r) {
-                        env->run = 0;
-                        break;
+                s_error_handler eh;
+                push_error_handler(&eh, env);
+                if (setjmp(eh.buf)) {
+                        fputs("cfacts: ", stderr);
+                        fputs(eh.string->str, stderr);
+                        fputs("\n", stderr);
                 }
-                u_form *e = eval(r, env);
-                prin1(e);
-                puts("");
+                else {
+                        u_form *r;
+                        u_form *e;
+                        if (!(r = read_form(env->si))) {
+                                env->run = 0;
+                                break;
+                        }
+                        e = eval(r, env);
+                        prin1(e, env);
+                        puts("");
+                }
         }
         return 0;
 }

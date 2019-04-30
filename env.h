@@ -5,6 +5,7 @@
 #include "frame.h"
 
 typedef struct block s_block;
+typedef struct error_handler s_error_handler;
 
 typedef struct env
 {
@@ -14,6 +15,7 @@ typedef struct env
         s_frame *global_frame;
         u_form *specials;
         s_block *blocks;
+        s_error_handler *error_handler;
 } s_env;
 
 extern s_env g_env;

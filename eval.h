@@ -4,7 +4,6 @@
 #include "env.h"
 #include "form.h"
 
-u_form * error (const char *msg, ...);
 u_form * quote (u_form *form);
 u_form * atom (u_form *form);
 u_form * eq (u_form *a, u_form *b);
