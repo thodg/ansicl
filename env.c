@@ -151,7 +151,7 @@ u_form * defun (s_symbol *name, u_form *lambda_list, u_form *body,
         s_lambda *l = new_lambda(sym("function"), name, lambda_list,
                                  body, env);
         s_closure *c = new_closure(l);
-        frame_new_function(name, (u_form*) c, env->global_frame);
+        frame_new_function(name, c, env->global_frame);
         return (u_form*) name;
 }
 
@@ -169,8 +169,66 @@ u_form * defmacro (s_symbol *name, u_form *lambda_list, u_form *body,
         s_lambda *l = new_lambda(sym("macro"), name, lambda_list,
                                  body, env);
         s_closure *c = new_closure(l);
-        frame_new_macro(name, (u_form*) c, env->global_frame);
+        frame_new_macro(name, c, env->global_frame);
         return (u_form*) name;
+}
+
+u_form * labels (u_form *bindings, u_form *body, s_env *env)
+{
+        s_frame *frame = env->frame;
+        s_frame *f = new_frame(env->frame);
+        u_form *r;
+        env->frame = f;
+        while (consp(bindings)) {
+                u_form *first = bindings->cons.car;
+                u_form *name;
+                u_form *lambda_list;
+                u_form *body;
+                if (!consp(first) || !consp(first->cons.cdr))
+                        return error(env, "invalid binding for labels");
+                name = first->cons.car;
+                lambda_list = first->cons.cdr->cons.car;
+                body = first->cons.cdr->cons.cdr;
+                if (!symbolp(name))
+                        return error(env, "invalid binding for labels");
+                s_lambda *l = new_lambda(sym("labels"), &name->symbol,
+                                         lambda_list, body, env);
+                s_closure *c = new_closure(l);
+                frame_new_function(&name->symbol, c, f);
+                bindings = bindings->cons.cdr;
+        }
+        r = cspecial_progn(body, env);
+        env->frame = frame;
+        return r;
+}
+
+u_form * flet (u_form *bindings, u_form *body, s_env *env)
+{
+        s_frame *frame = env->frame;
+        s_frame *f = new_frame(env->frame);
+        u_form *r;
+        while (consp(bindings)) {
+                u_form *first = bindings->cons.car;
+                u_form *name;
+                u_form *lambda_list;
+                u_form *body;
+                if (!consp(first) || !consp(first->cons.cdr))
+                        return error(env, "invalid binding for labels");
+                name = first->cons.car;
+                lambda_list = first->cons.cdr->cons.car;
+                body = first->cons.cdr->cons.cdr;
+                if (!symbolp(name))
+                        return error(env, "invalid binding for labels");
+                s_lambda *l = new_lambda(sym("labels"), &name->symbol,
+                                         lambda_list, body, env);
+                s_closure *c = new_closure(l);
+                frame_new_function(&name->symbol, c, f);
+                bindings = bindings->cons.cdr;
+        }
+        env->frame = f;
+        r = cspecial_progn(body, env);
+        env->frame = frame;
+        return r;
 }
 
 void env_init (s_env *env, s_standard_input *si)
@@ -186,6 +244,10 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("cdr",         cfun_cdr);
         cfun("cons",        cfun_cons);
         cspecial("cond",         cspecial_cond);
+        cspecial("if",           cspecial_if);
+        cspecial("and",          cspecial_and);
+        cspecial("or",           cspecial_or);
+        cfun("not",         cfun_not);
         cspecial("progn",        cspecial_progn);
         cfun("make-symbol", cfun_make_symbol);
         cfun("list",        cfun_list);
@@ -204,9 +266,13 @@ void env_init (s_env *env, s_standard_input *si)
         cspecial("block",        cspecial_block);
         cspecial("return-from",  cspecial_return_from);
         cspecial("return",       cspecial_return);
+        cspecial("labels",       cspecial_labels);
+        cspecial("flet",         cspecial_flet);
         cfun("error",       cfun_error);
         cfun("eval",        cfun_eval);
         cfun("apply",       cfun_apply);
+        cfun("prin1",       cfun_prin1);
+        cfun("print",       cfun_print);
 }
 
 s_frame * push_frame (s_env *env)

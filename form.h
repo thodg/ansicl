@@ -72,7 +72,9 @@ enum e_form_type { FORM_CONS,
 #define consp(x)   ((x) && (x)->type == FORM_CONS)
 #define stringp(x) ((x) && (x)->type == FORM_STRING)
 #define symbolp(x) ((x) && (x)->type == FORM_SYMBOL)
-int functionp (u_form *x);
+#define packagep(x) ((x) && (x)->type == FORM_PACKAGE)
+#define functionp(x) ((x) && ((x)->type == FORM_CFUN ||         \
+                              (x)->type == FORM_CLOSURE))
 
 s_string *  init_string (s_string *s, unsigned long length,
                          const char *str);

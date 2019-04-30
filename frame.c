@@ -20,15 +20,15 @@ void frame_new_variable (s_symbol *sym, u_form *value, s_frame *frame)
         frame->variables = (u_form*) new_cons(a, frame->variables);
 }
 
-void frame_new_function (s_symbol *sym, u_form *value, s_frame *frame)
+void frame_new_function (s_symbol *sym, s_closure *value, s_frame *frame)
 {
-        u_form *a = (u_form*) new_cons((u_form*) sym, value);
+        u_form *a = (u_form*) new_cons((u_form*) sym, (u_form*) value);
         frame->functions = (u_form*) new_cons(a, frame->functions);
 }
 
-void frame_new_macro (s_symbol *sym, u_form *value, s_frame *frame)
+void frame_new_macro (s_symbol *sym, s_closure *value, s_frame *frame)
 {
-        u_form *a = (u_form*) new_cons((u_form*) sym, value);
+        u_form *a = (u_form*) new_cons((u_form*) sym, (u_form*) value);
         frame->macros = (u_form*) new_cons(a, frame->macros);
 }
 

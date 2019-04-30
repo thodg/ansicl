@@ -29,6 +29,17 @@ u_form * cfun_cdr (u_form *args, s_env *env);
 u_form * cfun_cons (u_form *args, s_env *env);
 u_form * cspecial_cond (u_form *args, s_env *env);
 
+u_form * cspecial_if (u_form *args, s_env *env);
+u_form * cspecial_and (u_form *args, s_env *env);
+u_form * cspecial_or (u_form *args, s_env *env);
+u_form * cfun_not (u_form *args, s_env *env);
+
+u_form * cfun_consp (u_form *args, s_env *env);
+u_form * cfun_stringp (u_form *args, s_env *env);
+u_form * cfun_symbolp (u_form *args, s_env *env);
+u_form * cfun_packagep (u_form *args, s_env *env);
+u_form * cfun_functionp (u_form *args, s_env *env);
+
 u_form * cspecial_progn (u_form *form, s_env *env);
 u_form * cfun_make_symbol (u_form *args, s_env *env);
 u_form * cfun_list (u_form *args, s_env *env);
@@ -49,11 +60,16 @@ u_form * cspecial_defmacro (u_form *args, s_env *env);
 u_form * cspecial_block (u_form *args, s_env *env);
 u_form * cspecial_return_from (u_form *args, s_env *env);
 u_form * cspecial_return (u_form *args, s_env *env);
+u_form * cspecial_labels (u_form *args, s_env *env);
+u_form * cspecial_flet (u_form *args, s_env *env);
 
 u_form * cfun_error (u_form *args, s_env *env);
 
 u_form * cfun_eval (u_form *args, s_env *env);
 u_form * cfun_apply (u_form *args, s_env *env);
+
+u_form * cfun_prin1 (u_form *args, s_env *env);
+u_form * cfun_print (u_form *args, s_env *env);
 
 u_form * eval (u_form *form, s_env *env);
 u_form * apply (u_form *fun, u_form *args, s_env *env);
