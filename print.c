@@ -45,6 +45,8 @@ void prin1_string (s_string *s)
 
 void prin1_symbol (s_symbol *sym)
 {
+        if (!sym->package)
+                fputs("#:", stdout);
         fputs(sym->string->str, stdout);
 }
 
