@@ -255,6 +255,7 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("find",        cfun_find);
         cfun("assoc",       cfun_assoc);
         cfun("last",        cfun_last);
+        cfun("length",      cfun_length);
         cspecial("let",          cspecial_let);
         cspecial("let*",         cspecial_let_star);
         cspecial("defvar",       cspecial_defvar);

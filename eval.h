@@ -16,7 +16,8 @@ u_form * cddr (u_form *form);
 u_form * cadar (u_form *form);
 u_form * caddr (u_form *form);
 u_form * assoc (u_form *item, u_form *alist);
-u_form * length (u_form *list);
+u_form * last (u_form *list);
+long length (u_form *list);
 
 u_form * backquote (u_form *form);
 u_form * comma_at (u_form *form);
@@ -48,6 +49,7 @@ u_form * cfun_list (u_form *args, s_env *env);
 u_form * cfun_find (u_form *args, s_env *env);
 u_form * cfun_assoc (u_form *args, s_env *env);
 u_form * cfun_last (u_form *args, s_env *env);
+u_form * cfun_length (u_form *args, s_env *env);
 
 u_form * cspecial_let (u_form *args, s_env *env);
 u_form * cspecial_let_star (u_form *args, s_env *env);

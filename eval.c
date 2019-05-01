@@ -487,6 +487,25 @@ u_form * cfun_last (u_form *args, s_env *env)
         return (u_form*) last(args->cons.car);
 }
 
+long length (u_form *x)
+{
+        long len = 0;
+        while (consp(x)) {
+                len++;
+                x = x->cons.cdr;
+        }
+        return len;
+}
+
+u_form * cfun_length (u_form *args, s_env *env)
+{
+        (void) env;
+        if (!consp(args) || !listp(args->cons.car) ||
+            args->cons.cdr != nil())
+                return error(env, "invalid arguments for length");
+        return (u_form*) new_long(length(args->cons.car));
+}
+
 u_form * cspecial_setq (u_form *args, s_env *env)
 {
         if (!consp(args) || !symbolp(args->cons.car) ||
