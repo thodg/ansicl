@@ -132,6 +132,31 @@ u_form * read_string (s_standard_input *si)
         return NULL;
 }
 
+u_form * read_number (s_standard_input *si)
+{
+        u_form *f = NULL;
+        unsigned long i = si->start;
+        char *end;
+        int j = 0;
+        while (i < si->end && '0' <= si->s[i] && si->s[i] <= '9')
+                i++;
+        if (i < si->end && si->s[i] == '.') {
+                f = (u_form*) new_double(strtod(si->s + si->start,
+                                                &end));
+                j = end - (si->s + si->start);
+        }
+        else if (i > si->start) {
+                f = (u_form*) new_long(strtol(si->s + si->start,
+                                              &end, 10));
+                j = end - (si->s + si->start);
+        }
+        if (j > 0) {
+                si->start += j;
+                return f;
+        }
+        return NULL;
+}
+
 u_form * read_symbol (s_standard_input *si)
 {
         u_form *f;
@@ -203,6 +228,8 @@ u_form * read_form (s_standard_input *si)
         if ((f = read_cons(si)))
                 return f;
         if ((f = read_string(si)))
+                return f;
+        if ((f = read_number(si)))
                 return f;
         if ((f = read_symbol(si)))
                 return f;

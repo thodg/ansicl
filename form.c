@@ -77,3 +77,23 @@ s_closure * new_closure (s_lambda *lambda)
         }
         return c;
 }
+
+s_long * new_long (long lng)
+{
+        s_long *n = malloc(sizeof(s_long));
+        if (n) {
+                n->type = FORM_LONG;
+                n->lng = lng;
+        }
+        return n;
+}
+
+s_double * new_double (double dbl)
+{
+        s_double *n = malloc(sizeof(s_double));
+        if (n) {
+                n->type = FORM_DOUBLE;
+                n->dbl = dbl;
+        }
+        return n;
+}

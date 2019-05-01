@@ -74,6 +74,16 @@ void prin1_closure (s_closure *c)
         fputs(">", stdout);
 }
 
+void prin1_long (s_long *lng)
+{
+        fprintf(stdout, "%li", lng->lng);
+}
+
+void prin1_double (s_double *dbl)
+{
+        fprintf(stdout, "%lg", dbl->dbl);
+}
+
 void prin1 (u_form *f, s_env *env)
 {
         if (!f) {
@@ -97,6 +107,12 @@ void prin1 (u_form *f, s_env *env)
                 break;
         case FORM_CLOSURE:
                 prin1_closure(&f->closure);
+                break;
+        case FORM_LONG:
+                prin1_long(&f->lng);
+                break;
+        case FORM_DOUBLE:
+                prin1_double(&f->dbl);
                 break;
         default:
                 error(env, "unknown form type");
