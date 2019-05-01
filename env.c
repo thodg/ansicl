@@ -276,6 +276,10 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("apply",       cfun_apply);
         cfun("prin1",       cfun_prin1);
         cfun("print",       cfun_print);
+        cfun("+",           cfun_plus);
+        cfun("-",           cfun_minus);
+        cfun("*",           cfun_mul);
+        cfun("/",           cfun_div);
 }
 
 s_frame * push_frame (s_env *env)

@@ -16,6 +16,7 @@ u_form * cddr (u_form *form);
 u_form * cadar (u_form *form);
 u_form * caddr (u_form *form);
 u_form * assoc (u_form *item, u_form *alist);
+u_form * length (u_form *list);
 
 u_form * backquote (u_form *form);
 u_form * comma_at (u_form *form);
@@ -77,5 +78,10 @@ u_form * cfun_print (u_form *args, s_env *env);
 
 u_form * eval (u_form *form, s_env *env);
 u_form * apply (u_form *fun, u_form *args, s_env *env);
+
+u_form * cfun_plus (u_form *args, s_env *env);
+u_form * cfun_minus (u_form *args, s_env *env);
+u_form * cfun_mul (u_form *args, s_env *env);
+u_form * cfun_div (u_form *args, s_env *env);
 
 #endif

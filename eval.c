@@ -750,3 +750,139 @@ u_form * cfun_print (u_form *args, s_env *env)
         print(args->cons.car, env);
         return nil();
 }
+
+u_form * cfun_plus (u_form *args, s_env *env)
+{
+        int d = 0;
+        u_form *a = args;
+        while (consp(a)) {
+                if (floatp(a->cons.car))
+                        d = 1;
+                else if (!integerp(a->cons.car))
+                        return error(env, "invalid arguments for +");
+                a = a->cons.cdr;
+        }
+        if (d) {
+                a = (u_form*) new_double(0.0);
+                while (consp(args)) {
+                        if (floatp(args->cons.car))
+                                a->dbl.dbl += args->cons.car->dbl.dbl;
+                        else
+                                a->dbl.dbl += args->cons.car->lng.lng;
+                        args = args->cons.cdr;
+                }
+                return a;
+        }
+        a = (u_form*) new_long(0);
+        while (consp(args)) {
+                a->lng.lng += args->cons.car->lng.lng;
+                args = args->cons.cdr;
+        }
+        return a;
+}
+
+u_form * cfun_minus (u_form *args, s_env *env)
+{
+        int d = 0;
+        u_form *a = args;
+        while (consp(a)) {
+                if (floatp(a->cons.car))
+                        d = 1;
+                else if (!integerp(a->cons.car))
+                        return error(env, "invalid arguments for -");
+                a = a->cons.cdr;
+        }
+        if (!consp(args))
+                return error(env, "invalid arguments for -");
+        if (d) {
+                a = (u_form*) new_double(floatp(args->cons.car) ?
+                                         args->cons.car->dbl.dbl :
+                                         args->cons.car->lng.lng);
+                args = args->cons.cdr;
+                while (consp(args)) {
+                        if (floatp(args->cons.car))
+                                a->dbl.dbl -= args->cons.car->dbl.dbl;
+                        else
+                                a->dbl.dbl -= args->cons.car->lng.lng;
+                        args = args->cons.cdr;
+                }
+                return a;
+        }
+        a = (u_form*) new_long(floatp(args->cons.car) ?
+                               args->cons.car->dbl.dbl :
+                               args->cons.car->lng.lng);
+        args = args->cons.cdr;
+        while (consp(args)) {
+                a->lng.lng -= args->cons.car->lng.lng;
+                args = args->cons.cdr;
+        }
+        return a;
+}
+
+u_form * cfun_mul (u_form *args, s_env *env)
+{
+        int d = 0;
+        u_form *a = args;
+        while (consp(a)) {
+                if (floatp(a->cons.car))
+                        d = 1;
+                else if (!integerp(a->cons.car))
+                        return error(env, "invalid arguments for *");
+                a = a->cons.cdr;
+        }
+        if (d) {
+                a = (u_form*) new_double(1.0);
+                while (consp(args)) {
+                        if (floatp(args->cons.car))
+                                a->dbl.dbl *= args->cons.car->dbl.dbl;
+                        else
+                                a->dbl.dbl *= args->cons.car->lng.lng;
+                        args = args->cons.cdr;
+                }
+                return a;
+        }
+        a = (u_form*) new_long(1);
+        while (consp(args)) {
+                a->lng.lng *= args->cons.car->lng.lng;
+                args = args->cons.cdr;
+        }
+        return a;
+}
+
+u_form * cfun_div (u_form *args, s_env *env)
+{
+        int d = 0;
+        u_form *a = args;
+        while (consp(a)) {
+                if (floatp(a->cons.car))
+                        d = 1;
+                else if (!integerp(a->cons.car))
+                        return error(env, "invalid arguments for -");
+                a = a->cons.cdr;
+        }
+        if (!consp(args))
+                return error(env, "invalid arguments for -");
+        if (d) {
+                a = (u_form*) new_double(floatp(args->cons.car) ?
+                                         args->cons.car->dbl.dbl :
+                                         args->cons.car->lng.lng);
+                args = args->cons.cdr;
+                while (consp(args)) {
+                        if (floatp(args->cons.car))
+                                a->dbl.dbl /= args->cons.car->dbl.dbl;
+                        else
+                                a->dbl.dbl /= args->cons.car->lng.lng;
+                        args = args->cons.cdr;
+                }
+                return a;
+        }
+        a = (u_form*) new_long(floatp(args->cons.car) ?
+                               args->cons.car->dbl.dbl :
+                               args->cons.car->lng.lng);
+        args = args->cons.cdr;
+        while (consp(args)) {
+                a->lng.lng /= args->cons.car->lng.lng;
+                args = args->cons.cdr;
+        }
+        return a;
+}
