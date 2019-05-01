@@ -7,6 +7,8 @@
 #include "lambda.h"
 #include "package.h"
 #include "print.h"
+#include "tags.h"
+#include "unwind_protect.h"
 
 u_form * eval_nil (u_form *form)
 {
@@ -173,6 +175,11 @@ u_form * cfun_eq (u_form *args, s_env *env)
                 return error(env, "invalid arguments for eq");
         return eq(args->cons.car,
                   args->cons.cdr->cons.car);
+}
+
+u_form * cons (u_form *car, u_form *cdr)
+{
+        return (u_form*) new_cons(car, cdr);
 }
 
 u_form * car (u_form *f)
@@ -527,6 +534,101 @@ u_form * cspecial_defparameter (u_form *args, s_env *env)
                             env);
 }
 
+u_form * cspecial_block (u_form *args, s_env *env)
+{
+        if (!consp(args) || !symbolp(args->cons.car))
+                return error(env, "invalid block form");
+        return block(&args->cons.car->symbol,
+                     args->cons.cdr, env);
+}
+
+u_form * cspecial_return_from (u_form *args, s_env *env)
+{
+        s_symbol *block_name;
+        u_form *value = nil();
+        if (!consp(args) || !symbolp(args->cons.car) ||
+            consp(cddr(args)))
+                return error(env, "invalid return_from form");
+        block_name = &args->cons.car->symbol;
+        if (consp(args->cons.cdr))
+                value = eval(args->cons.cdr->cons.car, env);
+        return_from(block_name, value, env);
+        return nil();
+}
+
+u_form * cspecial_return (u_form *args, s_env *env)
+{
+        u_form *value = nil();
+        if (consp(cdr(args)))
+                return error(env, "invalid arguments for return");
+        if (consp(args))
+                value = eval(args->cons.car, env);
+        return_from(&nil()->symbol, value, env);
+        return nil();
+}
+
+u_form * copy_list (u_form *list)
+{
+        u_form *head = nil();
+        u_form **tail = &head;
+        while (consp(list)) {
+                *tail = cons(list->cons.car, nil());
+                tail = &(*tail)->cons.cdr;
+                list = list->cons.cdr;
+        }
+        return head;
+}
+
+u_form * cspecial_tagbody (u_form *args, s_env *env)
+{
+        u_form *body = copy_list(args);
+        s_unwind_protect up;
+        s_tags tags;
+        u_form **b = &body;
+        u_form *f;
+        while (consp(*b)) {
+                if (symbolp((*b)->cons.car)) {
+                        tags.tags = cons(*b, tags.tags);
+                        *b = (*b)->cons.cdr;
+                }
+                else
+                        b = &(*b)->cons.cdr;
+        }
+        tags.go_tag = NULL;
+        if (setjmp(tags.buf)) {
+                f = cspecial_progn(tags.go_tag->cons.cdr, env);
+                pop_unwind_protect(env);
+                pop_tags(env);
+                return f;
+        }
+        push_tags(&tags, env);
+        if (setjmp(up.buf)) {
+                pop_unwind_protect(env);
+                pop_tags(env);
+                longjmp(*up.jmp, 1);
+        }
+        push_unwind_protect(&up, env);
+        f = cspecial_progn(body, env);
+        pop_unwind_protect(env);
+        pop_tags(env);
+        return f;
+}
+
+u_form * cspecial_go (u_form *args, s_env *env)
+{
+        s_symbol *name;
+        s_tags *tags;
+        if (!consp(args) || !symbolp(args->cons.car) ||
+            args->cons.cdr != nil())
+                return error(env, "invalid go form");
+        name = &args->cons.car->symbol;
+        if (!(tags = find_tag(name, env->tags)))
+                return error(env, "go to nonexistent label %s",
+                             name->string->str);
+        long_jump(&tags->buf, env);
+        return nil();
+}
+
 u_form * cspecial_lambda (u_form *args, s_env *env)
 {
         if (!consp(args) || !consp(args->cons.cdr))
@@ -563,39 +665,6 @@ u_form * cspecial_defmacro (u_form *args, s_env *env)
         return defmacro(&args->cons.car->symbol,
                         args->cons.cdr->cons.car,
                         args->cons.cdr->cons.cdr, env);
-}
-
-u_form * cspecial_block (u_form *args, s_env *env)
-{
-        if (!consp(args) || !symbolp(args->cons.car))
-                return error(env, "invalid block form");
-        return block(&args->cons.car->symbol,
-                     args->cons.cdr, env);
-}
-
-u_form * cspecial_return_from (u_form *args, s_env *env)
-{
-        s_symbol *block_name;
-        u_form *value = nil();
-        if (!consp(args) || !symbolp(args->cons.car) ||
-            consp(cddr(args)))
-                return error(env, "invalid return_from form");
-        block_name = &args->cons.car->symbol;
-        if (consp(args->cons.cdr))
-                value = eval(args->cons.cdr->cons.car, env);
-        return_from(block_name, value, env);
-        return nil();
-}
-
-u_form * cspecial_return (u_form *args, s_env *env)
-{
-        u_form *value = nil();
-        if (consp(cdr(args)))
-                return error(env, "invalid return form");
-        if (consp(args))
-                value = eval(args->cons.car, env);
-        return_from(&nil()->symbol, value, env);
-        return nil();
 }
 
 u_form * cspecial_labels (u_form *args, s_env *env)

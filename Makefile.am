@@ -26,4 +26,6 @@ cfacts_SOURCES = \
 	lambda.c \
 	package.c \
 	print.c \
-	read.c
+	read.c \
+	tags.c \
+	unwind_protect.c

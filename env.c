@@ -237,6 +237,7 @@ void env_init (s_env *env, s_standard_input *si)
         env->run = 1;
         env->frame = env->global_frame = new_frame(NULL);
         env->specials = nil();
+        env->tags = NULL;
         cspecial("quote",        cspecial_quote);
         cfun("atom",        cfun_atom);
         cfun("eq",          cfun_eq);
@@ -258,14 +259,16 @@ void env_init (s_env *env, s_standard_input *si)
         cspecial("let*",         cspecial_let_star);
         cspecial("defvar",       cspecial_defvar);
         cspecial("defparameter", cspecial_defparameter);
+        cspecial("block",        cspecial_block);
+        cspecial("return-from",  cspecial_return_from);
+        cspecial("return",       cspecial_return);
+        cspecial("tagbody",      cspecial_tagbody);
+        cspecial("go",           cspecial_go);
         cspecial("setq",         cspecial_setq);
         cspecial("lambda",       cspecial_lambda);
         cspecial("defun",        cspecial_defun);
         cspecial("function",     cspecial_function);
         cspecial("defmacro",     cspecial_defmacro);
-        cspecial("block",        cspecial_block);
-        cspecial("return-from",  cspecial_return_from);
-        cspecial("return",       cspecial_return);
         cspecial("labels",       cspecial_labels);
         cspecial("flet",         cspecial_flet);
         cfun("error",       cfun_error);

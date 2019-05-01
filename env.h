@@ -6,6 +6,8 @@
 
 typedef struct block s_block;
 typedef struct error_handler s_error_handler;
+typedef struct tags s_tags;
+typedef struct unwind_protect s_unwind_protect;
 
 typedef struct env
 {
@@ -16,6 +18,8 @@ typedef struct env
         u_form *specials;
         s_block *blocks;
         s_error_handler *error_handler;
+        s_tags *tags;
+        s_unwind_protect *unwind_protect;
 } s_env;
 
 extern s_env g_env;

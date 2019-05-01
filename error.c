@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "error.h"
+#include "unwind_protect.h"
 
 void push_error_handler (s_error_handler *eh, s_env *env)
 {
@@ -21,7 +22,7 @@ u_form * error_ (s_string *str, s_env *env)
         s_error_handler *eh = env->error_handler;
         if (eh) {
                 eh->string = str;
-                longjmp(eh->buf, 1);
+                long_jump(&eh->buf, env);
         }
         fprintf(stderr, "cfacts: %s\n", str->str);
         return nil();

@@ -7,6 +7,7 @@
 u_form * quote (u_form *form);
 u_form * atom (u_form *form);
 u_form * eq (u_form *a, u_form *b);
+u_form * cons (u_form *car, u_form *cdr);
 u_form * car (u_form *form);
 u_form * cdr (u_form *form);
 u_form * caar (u_form *form);
@@ -53,13 +54,16 @@ u_form * cspecial_defvar (u_form *args, s_env *env);
 u_form * cspecial_defparameter (u_form *args, s_env *env);
 u_form * cspecial_setq (u_form *args, s_env *env);
 
+u_form * cspecial_block (u_form *args, s_env *env);
+u_form * cspecial_return_from (u_form *args, s_env *env);
+u_form * cspecial_return (u_form *args, s_env *env);
+u_form * cspecial_tagbody (u_form *args, s_env *env);
+u_form * cspecial_go (u_form *args, s_env *env);
+
 u_form * cspecial_lambda (u_form *args, s_env *env);
 u_form * cspecial_defun (u_form *args, s_env *env);
 u_form * cspecial_function (u_form *args, s_env *env);
 u_form * cspecial_defmacro (u_form *args, s_env *env);
-u_form * cspecial_block (u_form *args, s_env *env);
-u_form * cspecial_return_from (u_form *args, s_env *env);
-u_form * cspecial_return (u_form *args, s_env *env);
 u_form * cspecial_labels (u_form *args, s_env *env);
 u_form * cspecial_flet (u_form *args, s_env *env);
 

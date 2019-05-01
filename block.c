@@ -5,6 +5,7 @@
 #include "env.h"
 #include "error.h"
 #include "eval.h"
+#include "unwind_protect.h"
 
 void push_block (s_block *b, s_symbol *name, s_env *env)
 {
@@ -59,5 +60,5 @@ void return_from (s_symbol *name, u_form *value, s_env *env)
                 return;
         }
         (*pb)->return_value = value;
-        longjmp((*pb)->buf, 1);
+        long_jump(&(*pb)->buf, env);
 }
