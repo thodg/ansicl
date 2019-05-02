@@ -463,12 +463,16 @@ u_form * find (u_form *item, u_form *list)
 
 u_form * cfun_find (u_form *args, s_env *env)
 {
+        u_form *f;
         (void) env;
         if (!consp(args) || !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
                 return error(env, "invalid arguments for find");
-        return find(args->cons.car,
-                    args->cons.cdr->cons.car);
+        f = find(args->cons.car,
+                 args->cons.cdr->cons.car);
+        if (!f)
+                return nil();
+        return f;
 }
 
 u_form * assoc (u_form *item, u_form *alist)
