@@ -454,8 +454,8 @@ u_form * cfun_list (u_form *args, s_env *env)
 u_form * find (u_form *item, u_form *list)
 {
         while (consp(list)) {
-                if (list->cons.car == item)
-                        return item;
+                if (eq(list->cons.car, item) != nil())
+                        return list->cons.car;
                 list = list->cons.cdr;
         }
         return NULL;
@@ -481,7 +481,7 @@ u_form * assoc (u_form *item, u_form *alist)
                 alist = alist->cons.cdr;
         }
         if (alist && consp(alist) && consp(alist->cons.car) &&
-            item == alist->cons.car->cons.car)
+            eq(item, alist->cons.car->cons.car))
                 return alist->cons.car;
         return nil();
 }
