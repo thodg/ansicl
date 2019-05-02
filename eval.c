@@ -164,6 +164,12 @@ u_form * eq (u_form *a, u_form *b) {
                 t = (u_form*) sym("t");
         if (a == b)
                 return t;
+        if (integerp(a) && integerp(b) &&
+            a->lng.lng == b->lng.lng)
+                return t;
+        if (floatp(a) && floatp(b) &&
+            a->dbl.dbl == b->dbl.dbl)
+                return t;
         return nil();
 }
 
