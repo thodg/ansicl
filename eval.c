@@ -170,17 +170,21 @@ u_form * eq (u_form *a, u_form *b) {
         if (floatp(a) && floatp(b) &&
             a->dbl.dbl == b->dbl.dbl)
                 return t;
-        return nil();
+        return NULL;
 }
 
 u_form * cfun_eq (u_form *args, s_env *env)
 {
+        u_form *f;
         (void) env;
         if (!consp(args) || !consp(args->cons.cdr) ||
             args->cons.cdr->cons.cdr != nil())
                 return error(env, "invalid arguments for eq");
-        return eq(args->cons.car,
-                  args->cons.cdr->cons.car);
+        f = eq(args->cons.car,
+               args->cons.cdr->cons.car);
+        if (!f)
+                return nil();
+        return f;
 }
 
 u_form * cons (u_form *car, u_form *cdr)
@@ -316,8 +320,7 @@ u_form * cspecial_case (u_form *args, s_env *env)
                         return cspecial_progn(args->cons.car->cons.cdr,
                                               env);
                 }
-                if (consp(keys) ? find(key, keys) != NULL :
-                    eq(key, keys) != nil())
+                if (consp(keys) ? find(key, keys) : eq(key, keys))
                         return cspecial_progn(args->cons.car->cons.cdr,
                                               env);
                 args = args->cons.cdr;
@@ -484,7 +487,7 @@ u_form * cfun_list (u_form *args, s_env *env)
 u_form * find (u_form *item, u_form *list)
 {
         while (consp(list)) {
-                if (eq(list->cons.car, item) != nil())
+                if (eq(list->cons.car, item))
                         return list->cons.car;
                 list = list->cons.cdr;
         }
