@@ -249,6 +249,7 @@ void env_init (s_env *env, s_standard_input *si)
         cspecial("and",          cspecial_and);
         cspecial("or",           cspecial_or);
         cfun("not",         cfun_not);
+        cspecial("prog1",        cspecial_prog1);
         cspecial("progn",        cspecial_progn);
         cfun("make-symbol", cfun_make_symbol);
         cfun("list",        cfun_list);

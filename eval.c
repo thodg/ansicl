@@ -402,6 +402,22 @@ u_form * cfun_functionp (u_form *args, s_env *env)
         return nil();
 }
 
+u_form * cspecial_prog1 (u_form *form, s_env *env)
+{
+        u_form *result = NULL;
+        while (consp(form)) {
+                u_form *f = eval(form->cons.car, env);
+                if (!result)
+                        result = f;
+                form = form->cons.cdr;
+        }
+        if (!result)
+                return error(env, "malformed prog1");
+        if (form != nil())
+                return error(env, "malformed prog1");
+        return result;
+}
+
 u_form * cspecial_progn (u_form *form, s_env *env)
 {
         u_form *f = nil();

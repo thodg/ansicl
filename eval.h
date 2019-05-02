@@ -43,6 +43,7 @@ u_form * cfun_symbolp (u_form *args, s_env *env);
 u_form * cfun_packagep (u_form *args, s_env *env);
 u_form * cfun_functionp (u_form *args, s_env *env);
 
+u_form * cspecial_prog1 (u_form *form, s_env *env);
 u_form * cspecial_progn (u_form *form, s_env *env);
 u_form * cfun_make_symbol (u_form *args, s_env *env);
 u_form * cfun_list (u_form *args, s_env *env);
