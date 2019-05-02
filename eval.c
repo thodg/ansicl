@@ -296,7 +296,7 @@ u_form * cspecial_cond (u_form *args, s_env *env)
                                               env);
                 args = args->cons.cdr;
         }
-        if (args && args->type != FORM_CONS)
+        if (args != nil())
                 return error(env, "invalid cond form");
         return nil();
 }
@@ -325,7 +325,7 @@ u_form * cspecial_case (u_form *args, s_env *env)
                                               env);
                 args = args->cons.cdr;
         }
-        if (args && args->type != FORM_CONS)
+        if (args != nil())
                 return error(env, "invalid case form");
         return nil();
 }
