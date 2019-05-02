@@ -15,6 +15,7 @@ u_form * cadr (u_form *form);
 u_form * cddr (u_form *form);
 u_form * cadar (u_form *form);
 u_form * caddr (u_form *form);
+u_form * find (u_form *item, u_form *list);
 u_form * assoc (u_form *item, u_form *alist);
 u_form * last (u_form *list);
 long length (u_form *list);
@@ -32,6 +33,7 @@ u_form * cfun_cdr (u_form *args, s_env *env);
 u_form * cfun_cons (u_form *args, s_env *env);
 u_form * cspecial_cond (u_form *args, s_env *env);
 
+u_form * cspecial_case (u_form *args, s_env *env);
 u_form * cspecial_if (u_form *args, s_env *env);
 u_form * cspecial_and (u_form *args, s_env *env);
 u_form * cspecial_or (u_form *args, s_env *env);

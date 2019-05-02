@@ -297,6 +297,36 @@ u_form * cspecial_cond (u_form *args, s_env *env)
         return nil();
 }
 
+u_form * cspecial_case (u_form *args, s_env *env)
+{
+        u_form *key;
+        if (!consp(args))
+                return error(env, "invalid case form");
+        key = eval(args->cons.car, env);
+        args = args->cons.cdr;
+        while (consp(args)) {
+                u_form *keys;
+                if (!consp(args->cons.car))
+                        return error(env, "invalid case form");
+                keys = args->cons.car->cons.car;
+                if (keys == (u_form*) sym("t") ||
+                    keys == (u_form*) sym("otherwise")) {
+                        if (consp(args->cons.cdr))
+                                return error(env, "case otherwise clause should be at end");
+                        return cspecial_progn(args->cons.car->cons.cdr,
+                                              env);
+                }
+                if (consp(keys) ? find(key, keys) != NULL :
+                    eq(key, keys) != nil())
+                        return cspecial_progn(args->cons.car->cons.cdr,
+                                              env);
+                args = args->cons.cdr;
+        }
+        if (args && args->type != FORM_CONS)
+                return error(env, "invalid case form");
+        return nil();
+}
+
 u_form * cspecial_if (u_form *args, s_env *env)
 {
         u_form *test;
