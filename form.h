@@ -85,6 +85,7 @@ enum e_form_type { FORM_CONS,
                    FORM_LONG,
                    FORM_DOUBLE };
 
+#define null(x)    ((x) == nil())
 #define consp(x)   ((x) && (x)->type == FORM_CONS)
 #define listp(x)   ((x) && ((x)->type == FORM_CONS || x == nil()))
 #define stringp(x) ((x) && (x)->type == FORM_STRING)
