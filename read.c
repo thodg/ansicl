@@ -174,7 +174,7 @@ u_form * read_quote (s_standard_input *si, s_env *env)
 {
         if (peek_char(si) == '\'') {
                 read_char(si);
-                u_form *f = quote(read_form(si, env));
+                u_form *f = cons_quote(read_form(si, env));
                 return f;
         }
         return NULL;

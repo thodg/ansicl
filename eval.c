@@ -87,7 +87,7 @@ u_form * eval_call (u_form *form, s_env *env)
         return NULL;
 }
 
-u_form * quote (u_form *x)
+u_form * cons_quote (u_form *x)
 {
         static u_form *quote_sym = NULL;
         if (!quote_sym)

@@ -4,7 +4,7 @@
 #include "env.h"
 #include "form.h"
 
-u_form * quote (u_form *form);
+u_form * cons_quote (u_form *form);
 u_form * atom (u_form *form);
 u_form * eq (u_form *a, u_form *b);
 u_form * cons (u_form *car, u_form *cdr);
