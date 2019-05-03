@@ -298,6 +298,7 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("error",       cfun_error);
         cfun("eval",        cfun_eval);
         cfun("apply",       cfun_apply);
+        cfun("funcall",     cfun_funcall);
         cfun("prin1",       cfun_prin1);
         cfun("print",       cfun_print);
         cfun("+",           cfun_plus);

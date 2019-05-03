@@ -79,12 +79,14 @@ u_form * cfun_error (u_form *args, s_env *env);
 
 u_form * cfun_eval (u_form *args, s_env *env);
 u_form * cfun_apply (u_form *args, s_env *env);
+u_form * cfun_funcall (u_form *args, s_env *env);
 
 u_form * cfun_prin1 (u_form *args, s_env *env);
 u_form * cfun_print (u_form *args, s_env *env);
 
 u_form * eval (u_form *form, s_env *env);
 u_form * apply (u_form *fun, u_form *args, s_env *env);
+u_form * funcall (u_form *fun, u_form *args, s_env *env);
 
 u_form * cfun_plus (u_form *args, s_env *env);
 u_form * cfun_minus (u_form *args, s_env *env);
