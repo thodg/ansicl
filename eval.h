@@ -19,6 +19,7 @@ u_form * find (u_form *item, u_form *list);
 u_form * assoc (u_form *item, u_form *alist);
 u_form * last (u_form *list);
 long length (u_form *list);
+u_form * cons_function (u_form *form);
 
 u_form * backquote (u_form *form);
 u_form * comma_at (u_form *form);

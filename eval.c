@@ -829,6 +829,15 @@ u_form * cspecial_defun (u_form *args, s_env *env)
                      args->cons.cdr->cons.cdr, env);
 }
 
+u_form * cons_function (u_form *x)
+{
+        static u_form *function_sym = NULL;
+        if (!function_sym)
+                function_sym = (u_form*) sym("function");
+        return (u_form*) new_cons(function_sym,
+                                  (u_form*) new_cons(x, nil()));
+}
+
 u_form * cspecial_function (u_form *args, s_env *env)
 {
         if (!consp(args) || !symbolp(args->cons.car) ||

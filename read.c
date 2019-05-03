@@ -126,6 +126,29 @@ u_form * read_string (s_standard_input *si)
         return NULL;
 }
 
+u_form * read_sharp (s_standard_input *si, s_env *env)
+{
+        if (peek_char(si) == '#') {
+                int c;
+                read_char(si);
+                c = peek_char(si);
+                switch (c) {
+                case '\'':
+                        read_char(si);
+                        return cons_function(read_form(si, env));
+                        break;
+                }
+                return error(env, "undefined # macro character %c", c);
+        }
+        return NULL;
+}
+
+int endchar (int c)
+{
+        return c == '(' || c == ')' || c == '"' || c == ' ' ||
+                c == '\t' || c == '\r' || c == '\n' || c == '\'';
+}
+
 u_form * read_number (s_standard_input *si)
 {
         u_form *f = NULL;
@@ -230,6 +253,8 @@ u_form * read_form (s_standard_input *si, s_env *env)
         if ((f = read_cons(si, env)))
                 return f;
         if ((f = read_string(si)))
+                return f;
+        if ((f = read_sharp(si, env)))
                 return f;
         if ((f = read_number(si)))
                 return f;
