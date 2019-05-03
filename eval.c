@@ -567,6 +567,25 @@ u_form * cfun_list (u_form *args, s_env *env)
         return args;
 }
 
+u_form * list_star (u_form *args)
+{
+        u_form *head = nil();
+        u_form **tail = &head;
+        while (consp(args) && consp(args->cons.cdr)) {
+                *tail = cons(args->cons.car, nil());
+                tail = &(*tail)->cons.cdr;
+                args = args->cons.cdr;
+        }
+        *tail = args->cons.car;
+        return head;
+}
+
+u_form * cfun_list_star (u_form *args, s_env *env)
+{
+        (void) env;
+        return list_star(args);
+}
+
 u_form * find (u_form *item, u_form *list)
 {
         while (consp(list)) {

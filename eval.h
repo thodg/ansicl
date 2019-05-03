@@ -50,6 +50,7 @@ u_form * cspecial_prog1 (u_form *form, s_env *env);
 u_form * cspecial_progn (u_form *form, s_env *env);
 u_form * cfun_make_symbol (u_form *args, s_env *env);
 u_form * cfun_list (u_form *args, s_env *env);
+u_form * cfun_list_star (u_form *args, s_env *env);
 u_form * cfun_find (u_form *args, s_env *env);
 u_form * cfun_assoc (u_form *args, s_env *env);
 u_form * cfun_last (u_form *args, s_env *env);

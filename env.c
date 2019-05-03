@@ -274,6 +274,7 @@ void env_init (s_env *env, s_standard_input *si)
         cspecial("progn",        cspecial_progn);
         cfun("make-symbol", cfun_make_symbol);
         cfun("list",        cfun_list);
+        cfun("list*",       cfun_list_star);
         cfun("find",        cfun_find);
         cfun("assoc",       cfun_assoc);
         cfun("last",        cfun_last);
