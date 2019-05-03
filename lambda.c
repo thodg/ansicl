@@ -5,6 +5,7 @@
 #include "error.h"
 #include "eval.h"
 #include "lambda.h"
+#include "unwind_protect.h"
 
 int check_lambda_list (u_form *lambda_list, s_env *env)
 {
@@ -35,6 +36,24 @@ s_lambda * new_lambda (s_symbol *type, s_symbol *name,
         return l;
 }
 
+u_form * eval_lambda_body (s_lambda *lambda, s_frame *frame, s_env *env)
+{
+        s_unwind_protect up;
+        u_form *f;
+        if (setjmp(up.buf)) {
+                pop_unwind_protect(env);
+                pop_block(&nil()->symbol, env);
+                env->frame = frame;
+                longjmp(*up.jmp, 1);
+        }
+        push_unwind_protect(&up, env);
+        f = cspecial_progn(lambda->body, env);
+        pop_unwind_protect(env);
+        pop_block(&nil()->symbol, env);
+        env->frame = frame;
+        return f;
+}
+
 u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
 {
         s_frame *frame = env->frame;
@@ -52,14 +71,8 @@ u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
         }
         if (consp(f) || consp(a))
                 return error(env, "invalid number of arguments");
-        push_block(&block, &nil()->symbol, env);
-        if (setjmp(block.buf)) {
-                block_pop(&nil()->symbol, env);
-                env->frame = frame;
+        if (setjmp(block.buf))
                 return block.return_value;
-        }
-        f = cspecial_progn(lambda->body, env);
-        block_pop(&nil()->symbol, env);
-        env->frame = frame;
-        return f;
+        push_block(&block, &nil()->symbol, env);
+        return eval_lambda_body(lambda, frame, env);
 }
