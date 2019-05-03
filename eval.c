@@ -266,6 +266,14 @@ u_form * caddr (u_form *f)
         return nil();
 }
 
+u_form * cddar (u_form *f)
+{
+        if (consp(f) && consp(f->cons.car) &&
+            consp(f->cons.car->cons.cdr))
+                return f->cons.car->cons.cdr->cons.cdr;
+        return nil();
+}
+
 u_form * cdddr (u_form *f)
 {
         if (consp(f) && consp(f->cons.cdr) &&
@@ -328,6 +336,60 @@ u_form * cspecial_case (u_form *args, s_env *env)
         if (args != nil())
                 return error(env, "invalid case form");
         return nil();
+}
+
+u_form * cspecial_do (u_form *args, s_env *env)
+{
+        u_form *varlist;
+        u_form *endlist;
+        u_form *endtest = nil();
+        u_form *resultform = nil();
+        u_form *body;
+        s_frame *frame = env->frame;
+        s_frame *f = new_frame(env->frame);
+        u_form *incs = nil();
+        u_form *test;
+        u_form *result;
+        if (!consp(args) || (!consp(args->cons.cdr)))
+                return error(env, "invalid do form");
+        body = args->cons.cdr->cons.cdr;
+        if (!listp((varlist = args->cons.car)))
+                return error(env, "invalid varlist for do");
+        if (!listp((endlist = args->cons.cdr->cons.car)))
+                return error(env, "invalid endlist for do");
+        endtest = car(endlist);
+        resultform = cadr(endlist);
+        while (consp(varlist)) {
+                s_symbol *name;
+                u_form *value = nil();
+                if (symbolp(varlist->cons.car))
+                        name = &car(varlist)->symbol;
+                else if (consp(varlist->cons.car) &&
+                         symbolp(varlist->cons.car->cons.car)) {
+                        name = &varlist->cons.car->cons.car->symbol;
+                        if (consp(cdar(varlist))) {
+                                value = cadar(varlist);
+                                if (consp(cddar(varlist)))
+                                        push(incs, cons((u_form*) name,
+                                                        car(cddar(varlist))));
+                        }
+                } else return error(env, "invalid var binding for do");
+                frame_new_variable(name, value, f);
+                varlist = varlist->cons.cdr;
+        }
+        env->frame = f;
+        while ((test = eval(endtest, env)) == nil()) {
+                u_form *inc = incs;
+                cspecial_progn(body, env);
+                while (consp(inc)) {
+                        setq(&caar(inc)->symbol,
+                             eval(cdar(inc), env), env);
+                        inc = inc->cons.cdr;
+                }
+        }
+        result = eval(resultform, env);
+        env->frame = frame;
+        return result;
 }
 
 u_form * cspecial_if (u_form *args, s_env *env)

@@ -34,6 +34,7 @@ u_form * cfun_cons (u_form *args, s_env *env);
 u_form * cspecial_cond (u_form *args, s_env *env);
 
 u_form * cspecial_case (u_form *args, s_env *env);
+u_form * cspecial_do (u_form *args, s_env *env);
 u_form * cspecial_if (u_form *args, s_env *env);
 u_form * cspecial_and (u_form *args, s_env *env);
 u_form * cspecial_or (u_form *args, s_env *env);

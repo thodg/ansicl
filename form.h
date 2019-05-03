@@ -97,6 +97,8 @@ enum e_form_type { FORM_CONS,
 #define floatp(x) ((x) && (x)->type == FORM_DOUBLE)
 #define numberp(x) (integerp(x) || floatp(x))
 
+#define push(place, x) place = cons(x, place)
+
 s_string *  init_string (s_string *s, unsigned long length,
                          const char *str);
 

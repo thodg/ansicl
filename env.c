@@ -246,6 +246,7 @@ void env_init (s_env *env, s_standard_input *si)
         cfun("cons",        cfun_cons);
         cspecial("cond",         cspecial_cond);
         cspecial("case",         cspecial_case);
+        cspecial("do",           cspecial_do);
         cspecial("if",           cspecial_if);
         cspecial("and",          cspecial_and);
         cspecial("or",           cspecial_or);
