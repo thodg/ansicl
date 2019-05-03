@@ -26,29 +26,38 @@ s_block ** find_block (s_symbol *name, s_env *env)
         return NULL;
 }
 
-u_form * block (s_symbol *name, u_form *progn, s_env *env)
+u_form * eval_block_body (s_symbol *name, u_form *progn, s_env *env)
 {
-        s_block block;
+        s_unwind_protect up;
         u_form *f;
-        push_block(&block, name, env);
-        if (setjmp(block.buf)) {
-                block_pop(name, env);
-                return block.return_value;
+        if (setjmp(up.buf)) {
+                pop_unwind_protect(env);
+                pop_block(name, env);
+                longjmp(*up.jmp, 1);
         }
+        push_unwind_protect(&up, env);
         f = cspecial_progn(progn, env);
-        block_pop(name, env);
+        pop_unwind_protect(env);
+        pop_block(name, env);
         return f;
 }
 
-u_form * block_pop (s_symbol *name, s_env *env)
+u_form * block (s_symbol *name, u_form *progn, s_env *env)
+{
+        s_block block;
+        push_block(&block, name, env);
+        if (setjmp(block.buf)) {
+                return block.return_value;
+        }
+        return eval_block_body(name, progn, env);
+}
+
+void pop_block (s_symbol *name, s_env *env)
 {
         s_block **pb = find_block(name, env);
-        s_block *b;
         if (!pb)
-                return error(env, "no block named %s", name->string->str);
-        b = *pb;
+                error(env, "no block named %s", name->string->str);
         *pb = (*pb)->next;
-        return b->return_value;
 }
 
 void return_from (s_symbol *name, u_form *value, s_env *env)
