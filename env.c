@@ -122,7 +122,17 @@ u_form * let (u_form *bindings, u_form *body, s_env *env)
                 bindings = bindings->cons.cdr;
         }
         env->frame = f;
-        r = cspecial_progn(body, env);
+        {
+                s_unwind_protect up;
+                if (setjmp(up.buf)) {
+                        pop_unwind_protect(env);
+                        env->frame = frame;
+                        longjmp(*up.jmp, 1);
+                }
+                push_unwind_protect(&up, env);
+                r = cspecial_progn(body, env);
+                pop_unwind_protect(env);
+        }
         env->frame = frame;
         return r;
 }
