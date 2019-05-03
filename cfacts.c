@@ -24,7 +24,7 @@ int repl (s_env *env)
                 else {
                         u_form *r;
                         u_form *e;
-                        if (!(r = read_form(env->si))) {
+                        if (!(r = read_form(env->si, env))) {
                                 env->run = 0;
                                 break;
                         }

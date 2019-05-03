@@ -7,6 +7,7 @@
 #include <readline/history.h>
 
 #include "env.h"
+#include "error.h"
 #include "eval.h"
 #include "form.h"
 #include "package.h"
@@ -56,14 +57,7 @@ int read_spaces (s_standard_input *si)
         return -1;
 }
 
-u_form * read_error (s_standard_input *si, const char *msg)
-{
-        (void) si;
-        fprintf(stderr, "cfacts: %s\n", msg);
-        return nil();
-}
-
-u_form * read_cons (s_standard_input *si)
+u_form * read_cons (s_standard_input *si, s_env *env)
 {
         int c = peek_char(si);
         if (c == '(') {
@@ -79,21 +73,21 @@ u_form * read_cons (s_standard_input *si)
                         }
                         if (c == '.') {
                                 if (!head)
-                                        return read_error(si, "unexpect"
-                                                          "ed dot");
+                                        return error(env, "unexpect"
+                                                     "ed dot");
                                 else {
                                         read_char(si);
-                                        if (!(*tail = read_form(si)) ||
+                                        if (!(*tail = read_form(si, env)) ||
                                             read_spaces(si) ||
                                             (c = read_char(si)) < 0)
                                                 return NULL;
                                         if (c == ')')
                                                 return head;
-                                        return read_error(si, "malformed "
-                                                          "dotted list");
+                                        return error(env, "malformed "
+                                                     "dotted list");
                                 }
                         }
-                        if (!(*tail = read_form(si)))
+                        if (!(*tail = read_form(si, env)))
                                 return NULL;
                         *tail = (u_form*) new_cons(*tail, NULL);
                         tail = &(*tail)->cons.cdr;
@@ -176,61 +170,70 @@ u_form * read_symbol (s_standard_input *si)
         return f;
 }
 
-u_form * read_quote (s_standard_input *si)
+u_form * read_quote (s_standard_input *si, s_env *env)
 {
         if (peek_char(si) == '\'') {
                 read_char(si);
-                u_form *f = quote(read_form(si));
+                u_form *f = quote(read_form(si, env));
                 return f;
         }
         return NULL;
 }
 
-u_form * read_backquote (s_standard_input *si)
+u_form * read_backquote (s_standard_input *si, s_env *env)
 {
         if (peek_char(si) == '`') {
                 read_char(si);
-                u_form *f = backquote(read_form(si));
+                u_form *f = backquote(read_form(si, env));
                 return f;
         }
         return NULL;
 }
 
-u_form * read_comma (s_standard_input *si)
+u_form * read_comma (s_standard_input *si, s_env *env)
 {
         if (peek_char(si) == ',') {
                 read_char(si);
                 switch (peek_char(si)) {
                 case '@':
                         read_char(si);
-                        return comma_at(read_form(si));
+                        return comma_at(read_form(si, env));
                 case '.':
                         read_char(si);
-                        return comma_dot(read_form(si));
+                        return comma_dot(read_form(si, env));
                 default:
-                        return comma(read_form(si));
+                        return comma(read_form(si, env));
                 }
         }
         return NULL;
 }
 
-u_form * read_form (s_standard_input *si)
+void read_errors (s_standard_input *si, s_env *env)
+{
+        if (peek_char(si) == ')') {
+                read_char(si);
+                error(env, "unmatched close parenthesis");
+        }
+}
+
+u_form * read_form (s_standard_input *si, s_env *env)
 {
         u_form *f;
         if (read_spaces(si))
                 return NULL;
-        if ((f = read_quote(si)))
+        if ((f = read_quote(si, env)))
                 return f;
-        if ((f = read_backquote(si)))
+        if ((f = read_backquote(si, env)))
                 return f;
-        if ((f = read_comma(si)))
+        if ((f = read_comma(si, env)))
                 return f;
-        if ((f = read_cons(si)))
+        if ((f = read_cons(si, env)))
                 return f;
         if ((f = read_string(si)))
                 return f;
         if ((f = read_number(si)))
                 return f;
+        read_errors(si, env);
         if ((f = read_symbol(si)))
                 return f;
         return NULL;
