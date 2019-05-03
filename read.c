@@ -154,7 +154,7 @@ u_form * read_number (s_standard_input *si)
         u_form *f = NULL;
         unsigned long i = si->start;
         char *end;
-        int j = 0;
+        unsigned long j = 0;
         while (i < si->end && '0' <= si->s[i] && si->s[i] <= '9')
                 i++;
         if (i < si->end && si->s[i] == '.') {
@@ -167,7 +167,7 @@ u_form * read_number (s_standard_input *si)
                                               &end, 10));
                 j = end - (si->s + si->start);
         }
-        if (j > 0) {
+        if (j > 0 && (si->start + j >= si->end || endchar(si->s[si->start + j]))) {
                 si->start += j;
                 return f;
         }
