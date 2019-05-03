@@ -338,8 +338,39 @@ u_form * cspecial_case (u_form *args, s_env *env)
         return nil();
 }
 
+u_form * eval_do_body (u_form *endtest, u_form *resultform,
+                       u_form *body, u_form *incs, s_frame *frame,
+                       s_env *env)
+{
+        s_unwind_protect up;
+        u_form *test;
+        u_form *result;
+        if (setjmp(up.buf)) {
+                pop_unwind_protect(env);
+                pop_block(&nil()->symbol, env);
+                env->frame = frame;
+                longjmp(*up.jmp, 1);
+        }
+        push_unwind_protect(&up, env);
+        while ((test = eval(endtest, env)) == nil()) {
+                u_form *inc = incs;
+                cspecial_progn(body, env);
+                while (consp(inc)) {
+                        setq(&caar(inc)->symbol,
+                             eval(cdar(inc), env), env);
+                        inc = inc->cons.cdr;
+                }
+        }
+        result = eval(resultform, env);
+        pop_unwind_protect(env);
+        pop_block(&nil()->symbol, env);
+        env->frame = frame;
+        return result;
+}
+
 u_form * cspecial_do (u_form *args, s_env *env)
 {
+        s_block block;
         u_form *varlist;
         u_form *endlist;
         u_form *endtest = nil();
@@ -348,8 +379,6 @@ u_form * cspecial_do (u_form *args, s_env *env)
         s_frame *frame = env->frame;
         s_frame *f = new_frame(env->frame);
         u_form *incs = nil();
-        u_form *test;
-        u_form *result;
         if (!consp(args) || (!consp(args->cons.cdr)))
                 return error(env, "invalid do form");
         body = args->cons.cdr->cons.cdr;
@@ -378,18 +407,10 @@ u_form * cspecial_do (u_form *args, s_env *env)
                 varlist = varlist->cons.cdr;
         }
         env->frame = f;
-        while ((test = eval(endtest, env)) == nil()) {
-                u_form *inc = incs;
-                cspecial_progn(body, env);
-                while (consp(inc)) {
-                        setq(&caar(inc)->symbol,
-                             eval(cdar(inc), env), env);
-                        inc = inc->cons.cdr;
-                }
-        }
-        result = eval(resultform, env);
-        env->frame = frame;
-        return result;
+        if (setjmp(block.buf))
+                return block.return_value;
+        push_block(&block, &nil()->symbol, env);
+        return eval_do_body(endtest, resultform, body, incs, frame, env);
 }
 
 u_form * cspecial_if (u_form *args, s_env *env)
