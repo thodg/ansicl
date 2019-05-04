@@ -667,6 +667,58 @@ u_form * cfun_length (u_form *args, s_env *env)
         return (u_form*) new_long(length(args->cons.car));
 }
 
+u_form * append (u_form *lists)
+{
+        u_form *head = nil();
+        u_form **tail = &head;
+        int i = 0;
+        int len = length(lists);
+        int last = len - 1;
+        while (i < last && consp(lists)) {
+                u_form *l = lists->cons.car;
+                while (consp(l)) {
+                        *tail = cons(l->cons.car, nil());
+                        tail = &(*tail)->cons.cdr;
+                        l = l->cons.cdr;
+                }
+                lists = lists->cons.cdr;
+                i++;
+        }
+        if (len == 0)
+                return nil();
+        *tail = lists->cons.car;
+        return head;
+}
+
+u_form * cfun_append (u_form *args, s_env *env)
+{
+        (void) env;
+        return append(args);
+}
+
+
+u_form * nconc (u_form *lists)
+{
+        u_form *l;
+        while (consp(lists) && lists->cons.car == nil())
+                lists = lists->cons.cdr;
+        if (consp((l = lists))) {
+                while (consp(l->cons.cdr)) {
+                        u_form *lst = last(l->cons.car);
+                        lst->cons.cdr = l->cons.cdr->cons.car;
+                        l = l->cons.cdr;
+                }
+                return lists->cons.car;
+        }
+        return nil();
+}
+
+u_form * cfun_nconc (u_form *args, s_env *env)
+{
+        (void) env;
+        return nconc(args);
+}
+
 u_form * cspecial_setq (u_form *args, s_env *env)
 {
         if (!consp(args) || !symbolp(args->cons.car) ||
