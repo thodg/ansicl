@@ -82,7 +82,7 @@ u_form * eval_call (u_form *form, s_env *env)
                         return error(env, "function not bound: %s",
                                      sym->string->str);
                 a = mapcar_eval(form->cons.cdr, env);
-                return apply(*f, a, env);
+                return funcall(*f, a, env);
         }
         return NULL;
 }
