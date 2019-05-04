@@ -77,7 +77,7 @@ u_form * eval_call (u_form *form, s_env *env)
                 if ((f = symbol_special(sym, env)))
                         return (*f)->cfun.fun(form->cons.cdr, env);
                 if ((f = symbol_macro(sym, env)))
-                        return eval(apply(*f, form->cons.cdr, env), env);
+                        return eval(funcall(*f, form->cons.cdr, env), env);
                 if (!(f = symbol_function(sym, env)))
                         return error(env, "function not bound: %s",
                                      sym->string->str);
