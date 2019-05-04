@@ -22,9 +22,9 @@ long length (u_form *list);
 u_form * cons_function (u_form *form);
 
 u_form * cons_backquote (u_form *form);
-u_form * comma_at (u_form *form);
-u_form * comma_dot (u_form *form);
-u_form * comma (u_form *form);
+u_form * cons_comma_at (u_form *form, s_env *env);
+u_form * cons_comma_dot (u_form *form, s_env *env);
+u_form * cons_comma (u_form *form, s_env *env);
 
 u_form * cspecial_quote (u_form *args, s_env *env);
 u_form * cfun_atom (u_form *args, s_env *env);

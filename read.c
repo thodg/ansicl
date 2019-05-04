@@ -217,12 +217,12 @@ u_form * read_comma (s_standard_input *si, s_env *env)
                 switch (peek_char(si)) {
                 case '@':
                         read_char(si);
-                        return comma_at(read_form(si, env));
+                        return cons_comma_at(read_form(si, env), env);
                 case '.':
                         read_char(si);
-                        return comma_dot(read_form(si, env));
+                        return cons_comma_dot(read_form(si, env), env);
                 default:
-                        return comma(read_form(si, env));
+                        return cons_comma(read_form(si, env), env);
                 }
         }
         return NULL;

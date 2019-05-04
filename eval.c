@@ -119,31 +119,23 @@ u_form * cons_backquote (u_form *x)
         return cons(backquote_sym, cons(x, nil()));
 }
 
-u_form * comma_at (u_form *x)
+u_form * cons_comma_at (u_form *x, s_env *env)
 {
-        static u_form *comma_at_sym = NULL;
-        if (!comma_at_sym)
-                comma_at_sym = (u_form*) sym("comma_at");
-        return (u_form*) new_cons(comma_at_sym,
-                                  (u_form*) new_cons(x, nil()));
+        u_form *comma_at_sym = eval((u_form*) sym("*comma-atsign*"),
+                                    env);
+        return cons(comma_at_sym, cons(x, nil()));
 }
 
-u_form * comma_dot (u_form *x)
+u_form * cons_comma_dot (u_form *x, s_env *env)
 {
-        static u_form *comma_dot_sym = NULL;
-        if (!comma_dot_sym)
-                comma_dot_sym = (u_form*) sym("comma_dot");
-        return (u_form*) new_cons(comma_dot_sym,
-                                  (u_form*) new_cons(x, nil()));
+        u_form *comma_dot_sym = eval((u_form*) sym("*comma-dot*"), env);
+        return cons(comma_dot_sym, cons(x, nil()));
 }
 
-u_form * comma (u_form *x)
+u_form * cons_comma (u_form *x, s_env *env)
 {
-        static u_form *comma_sym = NULL;
-        if (!comma_sym)
-                comma_sym = (u_form*) sym("comma");
-        return (u_form*) new_cons(comma_sym,
-                                  (u_form*) new_cons(x, nil()));
+        u_form *comma_sym = eval((u_form*) sym("*comma*"), env);
+        return cons(comma_sym, cons(x, nil()));
 }
 
 u_form * atom (u_form *form)
