@@ -21,7 +21,7 @@ u_form * last (u_form *list);
 long length (u_form *list);
 u_form * cons_function (u_form *form);
 
-u_form * backquote (u_form *form);
+u_form * cons_backquote (u_form *form);
 u_form * comma_at (u_form *form);
 u_form * comma_dot (u_form *form);
 u_form * comma (u_form *form);

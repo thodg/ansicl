@@ -204,7 +204,7 @@ u_form * read_backquote (s_standard_input *si, s_env *env)
 {
         if (peek_char(si) == '`') {
                 read_char(si);
-                u_form *f = backquote(read_form(si, env));
+                u_form *f = cons_backquote(read_form(si, env));
                 return f;
         }
         return NULL;

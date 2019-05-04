@@ -104,13 +104,12 @@ u_form * cspecial_quote (u_form *args, s_env *env)
         return args->cons.car;
 }
 
-u_form * backquote (u_form *x)
+u_form * cons_backquote (u_form *x)
 {
         static u_form *backquote_sym = NULL;
         if (!backquote_sym)
                 backquote_sym = (u_form*) sym("backquote");
-        return (u_form*) new_cons(backquote_sym,
-                                  (u_form*) new_cons(x, nil()));
+        return cons(backquote_sym, cons(x, nil()));
 }
 
 u_form * comma_at (u_form *x)
