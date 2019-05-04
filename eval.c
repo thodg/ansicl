@@ -416,7 +416,7 @@ u_form * cspecial_do (u_form *args, s_env *env)
                          symbolp(varlist->cons.car->cons.car)) {
                         name = &varlist->cons.car->cons.car->symbol;
                         if (consp(cdar(varlist))) {
-                                value = cadar(varlist);
+                                value = eval(cadar(varlist), env);
                                 if (consp(cddar(varlist)))
                                         push(incs, cons((u_form*) name,
                                                         car(cddar(varlist))));
