@@ -42,6 +42,13 @@ u_form * eval_variable (u_form *form, s_env *env)
         return NULL;
 }
 
+u_form * eval_atom (u_form *form)
+{
+        if (!consp(form))
+                return form;
+        return NULL;
+}
+
 u_form * mapcar_eval (u_form *list, s_env *env)
 {
         u_form *head = nil();
@@ -1021,9 +1028,10 @@ u_form * eval (u_form *form, s_env *env)
         if ((f = eval_nil(form))) return f;
         if ((f = eval_t(form))) return f;
         if ((f = eval_variable(form, env))) return f;
+        if ((f = eval_atom(form))) return f;
         if ((f = eval_call(form, env))) return f;
         if ((f = eval_beta(form, env))) return f;
-        return form;
+        return error(env, "invalid form");
 }
 
 u_form * cfun_eval (u_form *args, s_env *env)
