@@ -191,6 +191,15 @@ u_form * cons (u_form *car, u_form *cdr)
         return (u_form*) new_cons(car, cdr);
 }
 
+u_form * cfun_cons (u_form *args, s_env *env)
+{
+        (void) env;
+        if (!consp(args) || !consp(args->cons.cdr) ||
+            args->cons.cdr->cons.cdr != nil())
+                return error(env, "invalid arguments for cons");
+        return cons(args->cons.car, args->cons.cdr->cons.car);
+}
+
 u_form * car (u_form *f)
 {
         if (consp(f))
@@ -219,6 +228,28 @@ u_form * cfun_cdr (u_form *args, s_env *env)
         if (!consp(args) || args->cons.cdr != nil())
                 return error(env, "invalid arguments for cdr");
         return cdr(args->cons.car);
+}
+
+u_form * cfun_rplaca (u_form *args, s_env *env)
+{
+        (void) env;
+        if (!consp(args) || !consp(args->cons.car) ||
+            !consp(args->cons.cdr) ||
+            args->cons.cdr->cons.cdr != nil())
+                return error(env, "invalid arguments for rplaca");
+        args->cons.car->cons.car = args->cons.cdr->cons.car;
+        return args->cons.car;
+}
+
+u_form * cfun_rplacd (u_form *args, s_env *env)
+{
+        (void) env;
+        if (!consp(args) || !consp(args->cons.car) ||
+            !consp(args->cons.cdr) ||
+            args->cons.cdr->cons.cdr != nil())
+                return error(env, "invalid arguments for rplacd");
+        args->cons.car->cons.cdr = args->cons.cdr->cons.car;
+        return args->cons.car;
 }
 
 u_form * caar (u_form *f)
@@ -279,16 +310,6 @@ u_form * cdddr (u_form *f)
             consp(f->cons.cdr->cons.cdr))
                 return f->cons.cdr->cons.cdr->cons.cdr;
         return nil();
-}
-
-u_form * cfun_cons (u_form *args, s_env *env)
-{
-        (void) env;
-        if (!consp(args) || !consp(args->cons.cdr) ||
-            args->cons.cdr->cons.cdr != nil())
-                return error(env, "invalid arguments for cons");
-        return (u_form*) new_cons(args->cons.car,
-                                  args->cons.cdr->cons.car);
 }
 
 u_form * cspecial_cond (u_form *args, s_env *env)
@@ -410,6 +431,24 @@ u_form * cspecial_do (u_form *args, s_env *env)
                 return block.return_value;
         push_block(&block, &nil()->symbol, env);
         return eval_do_body(endtest, resultform, body, incs, frame, env);
+}
+
+u_form * cspecial_when (u_form *args, s_env *env)
+{
+        if (!consp(args))
+                return error(env, "invalid when form");
+        if (eval(args->cons.car, env) != nil())
+                return cspecial_progn(args->cons.cdr, env);
+        return nil();
+}
+
+u_form * cspecial_unless (u_form *args, s_env *env)
+{
+        if (!consp(args))
+                return error(env, "invalid unless form");
+        if (eval(args->cons.car, env) == nil())
+                return cspecial_progn(args->cons.cdr, env);
+        return nil();
 }
 
 u_form * cspecial_if (u_form *args, s_env *env)
@@ -904,6 +943,17 @@ u_form * cspecial_defmacro (u_form *args, s_env *env)
         return defmacro(&args->cons.car->symbol,
                         args->cons.cdr->cons.car,
                         args->cons.cdr->cons.cdr, env);
+}
+
+u_form * cfun_macro_function (u_form *args, s_env *env)
+{
+        if (!consp(args) || !symbolp(args->cons.car) ||
+            args->cons.cdr != nil())
+                return error(env, "invalid macro-function call");
+        u_form **m = symbol_macro(&args->cons.car->symbol, env);
+        if (m)
+                return *m;
+        return nil();
 }
 
 u_form * cspecial_labels (u_form *args, s_env *env)
