@@ -6,32 +6,32 @@
 #include "package.h"
 #include "print.h"
 
-void prin1_cons (s_cons *cons, s_env *env)
+void prin1_cons (s_cons *cons, FILE *stream, s_env *env)
 {
         u_form *quote_sym = NULL;
         if (!quote_sym)
                 quote_sym = (u_form*) sym("quote");
         if (cons->car == quote_sym && cons->cdr->type == FORM_CONS &&
             cons->cdr->cons.cdr == nil()) {
-                fputc('\'', stdout);
-                prin1(cons->cdr->cons.car, env);
+                fputc('\'', stream);
+                prin1(cons->cdr->cons.car, stream, env);
                 return;
         }
-        fputc('(', stdout);
-        prin1(cons->car, env);
+        fputc('(', stream);
+        prin1(cons->car, stream, env);
         while (cons->cdr && cons->cdr->type == FORM_CONS) {
-                fputc(' ', stdout);
+                fputc(' ', stream);
                 cons = &cons->cdr->cons;
-                prin1(cons->car, env);
+                prin1(cons->car, stream, env);
         }
         if (cons->cdr != nil()) {
-                fputs(" . ", stdout);
-                prin1(cons->cdr, env);
+                fputs(" . ", stream);
+                prin1(cons->cdr, stream, env);
         }
-        fputc(')', stdout);
+        fputc(')', stream);
 }
 
-void prin1_string (s_string *s)
+void prin1_string (s_string *s, FILE *stream)
 {
         unsigned long len = s->length;
         char *c = s->str;
@@ -41,87 +41,87 @@ void prin1_string (s_string *s)
                         putchar('\\');
                 putchar(*c++);
         }
-        fputs("\"", stdout);
+        fputs("\"", stream);
 }
 
-void prin1_symbol (s_symbol *sym)
+void prin1_symbol (s_symbol *sym, FILE *stream)
 {
         if (!sym->package)
-                fputs("#:", stdout);
-        fputs(sym->string->str, stdout);
+                fputs("#:", stream);
+        fputs(sym->string->str, stream);
 }
 
-void prin1_package (s_package *pkg)
+void prin1_package (s_package *pkg, FILE *stream)
 {
-        fputs("#<package ", stdout);
-        fputs(pkg->name->string->str, stdout);
-        fputs(">", stdout);
+        fputs("#<package ", stream);
+        fputs(pkg->name->string->str, stream);
+        fputs(">", stream);
 }
 
-void prin1_cfun (s_cfun *cf)
+void prin1_cfun (s_cfun *cf, FILE *stream)
 {
-        fputs("#<cfun ", stdout);
-        fputs(cf->name->string->str, stdout);
-        fputs(">", stdout);
+        fputs("#<cfun ", stream);
+        fputs(cf->name->string->str, stream);
+        fputs(">", stream);
 }
 
-void prin1_closure (s_closure *c)
+void prin1_closure (s_closure *c, FILE *stream)
 {
-        fputs("#<", stdout);
-        prin1_symbol(c->lambda->type);
-        fputs(" ", stdout);
-        prin1_symbol(c->lambda->name);
-        fputs(">", stdout);
+        fputs("#<", stream);
+        prin1_symbol(c->lambda->lambda_type, stream);
+        fputs(" ", stream);
+        prin1_symbol(c->lambda->name, stream);
+        fputs(">", stream);
 }
 
-void prin1_long (s_long *lng)
+void prin1_long (s_long *lng, FILE *stream)
 {
-        fprintf(stdout, "%li", lng->lng);
+        fprintf(stream, "%li", lng->lng);
 }
 
-void prin1_double (s_double *dbl)
+void prin1_double (s_double *dbl, FILE *stream)
 {
-        fprintf(stdout, "%lg", dbl->dbl);
+        fprintf(stream, "%lg", dbl->dbl);
 }
 
-void prin1 (u_form *f, s_env *env)
+void prin1 (u_form *f, FILE *stream, s_env *env)
 {
         if (!f) {
                 return;
         }
         switch (f->type) {
         case FORM_CONS:
-                prin1_cons(&f->cons, env);
+                prin1_cons(&f->cons, stream, env);
                 break;
         case FORM_STRING:
-                prin1_string(&f->string);
+                prin1_string(&f->string, stream);
                 break;
         case FORM_SYMBOL:
-                prin1_symbol(&f->symbol);
+                prin1_symbol(&f->symbol, stream);
                 break;
         case FORM_PACKAGE:
-                prin1_package(&f->package);
+                prin1_package(&f->package, stream);
                 break;
         case FORM_CFUN:
-                prin1_cfun(&f->cfun);
+                prin1_cfun(&f->cfun, stream);
                 break;
         case FORM_CLOSURE:
-                prin1_closure(&f->closure);
+                prin1_closure(&f->closure, stream);
                 break;
         case FORM_LONG:
-                prin1_long(&f->lng);
+                prin1_long(&f->lng, stream);
                 break;
         case FORM_DOUBLE:
-                prin1_double(&f->dbl);
+                prin1_double(&f->dbl, stream);
                 break;
         default:
                 error(env, "unknown form type");
         }
 }
 
-void print (u_form *f, s_env *env)
+void print (u_form *f, FILE *stream, s_env *env)
 {
-        puts("");
-        prin1(f, env);
-        putchar(' ');
+        fputs("\n", stream);
+        prin1(f, stream, env);
+        fputc(' ', stream);
 }

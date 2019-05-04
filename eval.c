@@ -938,7 +938,7 @@ u_form * cfun_prin1 (u_form *args, s_env *env)
 {
         if (!consp(args) || args->cons.cdr != nil())
                 return error(env, "invalid arguments for prin1");
-        prin1(args->cons.car, env);
+        prin1(args->cons.car, stdout, env);
         return nil();
 }
 
@@ -946,7 +946,7 @@ u_form * cfun_print (u_form *args, s_env *env)
 {
         if (!consp(args) || args->cons.cdr != nil())
                 return error(env, "invalid arguments for print");
-        print(args->cons.car, env);
+        print(args->cons.car, stdout, env);
         return nil();
 }
 

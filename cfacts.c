@@ -29,7 +29,7 @@ int repl (s_env *env)
                                 break;
                         }
                         e = eval(r, env);
-                        prin1(e, env);
+                        prin1(e, stdout, env);
                         puts("");
                 }
         }
