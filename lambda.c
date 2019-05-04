@@ -27,6 +27,7 @@ s_lambda * new_lambda (s_symbol *lambda_type, s_symbol *name,
         if (check_lambda_list(lambda_list, env))
                 return NULL;
         if ((l = malloc(sizeof(s_lambda)))) {
+                l->type = FORM_LAMBDA;
                 l->lambda_type = lambda_type;
                 l->name = name;
                 l->lambda_list = lambda_list;

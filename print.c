@@ -65,12 +65,12 @@ void prin1_cfun (s_cfun *cf, FILE *stream)
         fputs(">", stream);
 }
 
-void prin1_closure (s_closure *c, FILE *stream)
+void prin1_lambda (s_lambda *lambda, FILE *stream)
 {
         fputs("#<", stream);
-        prin1_symbol(c->lambda->lambda_type, stream);
+        prin1_symbol(lambda->lambda_type, stream);
         fputs(" ", stream);
-        prin1_symbol(c->lambda->name, stream);
+        prin1_symbol(lambda->name, stream);
         fputs(">", stream);
 }
 
@@ -105,8 +105,8 @@ void prin1 (u_form *f, FILE *stream, s_env *env)
         case FORM_CFUN:
                 prin1_cfun(&f->cfun, stream);
                 break;
-        case FORM_CLOSURE:
-                prin1_closure(&f->closure, stream);
+        case FORM_LAMBDA:
+                prin1_lambda(&f->lambda, stream);
                 break;
         case FORM_LONG:
                 prin1_long(&f->lng, stream);

@@ -816,7 +816,7 @@ u_form * cspecial_lambda (u_form *args, s_env *env)
         s_lambda *l = new_lambda(sym("lambda"), &nil()->symbol,
                                  args->cons.car, args->cons.cdr,
                                  env);
-        return (u_form*) new_closure(l);
+        return (u_form*) l;
 }
 
 u_form * cspecial_defun (u_form *args, s_env *env)
@@ -895,8 +895,8 @@ u_form * funcall (u_form *fun, u_form *args, s_env *env)
                 return fun->cfun.fun(args, env);
         if (car(fun) == (u_form*) sym("lambda"))
                 fun = eval(fun, env);
-        if (fun->type == FORM_CLOSURE) {
-                return apply_lambda(fun->closure.lambda, args, env);
+        if (fun->type == FORM_LAMBDA) {
+                return apply_lambda(&fun->lambda, args, env);
         }
         return error(env, "funcall argument is not a function");
 }

@@ -8,7 +8,7 @@ typedef struct string  s_string;
 typedef struct symbol  s_symbol;
 typedef struct package s_package;
 typedef struct cfun    s_cfun;
-typedef struct closure s_closure;
+typedef struct lambda  s_lambda;
 typedef struct lng     s_long;
 typedef struct dbl     s_double;
 
@@ -17,7 +17,6 @@ typedef union form u_form;
 typedef struct env s_env;
 typedef u_form * f_cfun (u_form *args, s_env *env);
 typedef struct frame s_frame;
-typedef struct lambda s_lambda;
 
 struct cons {
         unsigned long type;
@@ -49,9 +48,13 @@ struct cfun {
         f_cfun *fun;
 };
 
-struct closure {
+struct lambda {
         unsigned long type;
-        s_lambda *lambda;
+        s_symbol *lambda_type;
+        s_symbol *name;
+        u_form *lambda_list;
+        u_form *body;
+        s_frame *frame;
 };
 
 struct lng {
@@ -71,7 +74,7 @@ union form {
         s_symbol symbol;
         s_package package;
         s_cfun cfun;
-        s_closure closure;
+        s_lambda lambda;
         s_long lng;
         s_double dbl;
 };
@@ -81,7 +84,7 @@ enum e_form_type { FORM_CONS,
                    FORM_SYMBOL,
                    FORM_PACKAGE,
                    FORM_CFUN,
-                   FORM_CLOSURE,
+                   FORM_LAMBDA,
                    FORM_LONG,
                    FORM_DOUBLE };
 
@@ -92,7 +95,7 @@ enum e_form_type { FORM_CONS,
 #define symbolp(x) ((x) && (x)->type == FORM_SYMBOL)
 #define packagep(x) ((x) && (x)->type == FORM_PACKAGE)
 #define functionp(x) ((x) && ((x)->type == FORM_CFUN ||         \
-                              (x)->type == FORM_CLOSURE))
+                              (x)->type == FORM_LAMBDA))
 #define integerp(x) ((x) && (x)->type == FORM_LONG)
 #define floatp(x) ((x) && (x)->type == FORM_DOUBLE)
 #define numberp(x) (integerp(x) || floatp(x))
@@ -107,7 +110,9 @@ s_cons *    new_cons (u_form *car, u_form *cdr);
 s_string *  new_string (unsigned long length, const char *str);
 s_symbol *  new_symbol (s_string *string);
 s_package * new_package (s_symbol *name);
-s_closure * new_closure (s_lambda *lambda);
+s_lambda *  new_lambda (s_symbol *type, s_symbol *name,
+                        u_form *lambda_list, u_form *body,
+                        s_env *env);
 s_long *    new_long (long lng);
 s_double *  new_double (double dbl);
 

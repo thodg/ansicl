@@ -169,8 +169,7 @@ u_form * defun (s_symbol *name, u_form *lambda_list, u_form *body,
 {
         s_lambda *l = new_lambda(sym("function"), name, lambda_list,
                                  body, env);
-        s_closure *c = new_closure(l);
-        frame_new_function(name, c, env->global_frame);
+        frame_new_function(name, l, env->global_frame);
         return (u_form*) name;
 }
 
@@ -187,8 +186,7 @@ u_form * defmacro (s_symbol *name, u_form *lambda_list, u_form *body,
 {
         s_lambda *l = new_lambda(sym("macro"), name, lambda_list,
                                  body, env);
-        s_closure *c = new_closure(l);
-        frame_new_macro(name, c, env->global_frame);
+        frame_new_macro(name, l, env->global_frame);
         return (u_form*) name;
 }
 
@@ -212,8 +210,7 @@ u_form * labels (u_form *bindings, u_form *body, s_env *env)
                         return error(env, "invalid binding for labels");
                 s_lambda *l = new_lambda(sym("labels"), &name->symbol,
                                          lambda_list, body, env);
-                s_closure *c = new_closure(l);
-                frame_new_function(&name->symbol, c, f);
+                frame_new_function(&name->symbol, l, f);
                 bindings = bindings->cons.cdr;
         }
         r = cspecial_progn(body, env);
@@ -240,8 +237,7 @@ u_form * flet (u_form *bindings, u_form *body, s_env *env)
                         return error(env, "invalid binding for labels");
                 s_lambda *l = new_lambda(sym("labels"), &name->symbol,
                                          lambda_list, body, env);
-                s_closure *c = new_closure(l);
-                frame_new_function(&name->symbol, c, f);
+                frame_new_function(&name->symbol, l, f);
                 bindings = bindings->cons.cdr;
         }
         env->frame = f;
