@@ -258,5 +258,5 @@ u_form * read_form (s_standard_input *si, s_env *env)
         read_errors(si, env);
         if ((f = read_symbol(si)))
                 return f;
-        return NULL;
+        return error(env, "read failed");
 }
