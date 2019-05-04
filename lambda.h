@@ -4,7 +4,7 @@
 #include "form.h"
 
 typedef struct lambda {
-        s_symbol *type;
+        s_symbol *lambda_type;
         s_symbol *name;
         u_form *lambda_list;
         u_form *body;

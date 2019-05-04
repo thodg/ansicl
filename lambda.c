@@ -19,7 +19,7 @@ int check_lambda_list (u_form *lambda_list, s_env *env)
         return 0;
 }
 
-s_lambda * new_lambda (s_symbol *type, s_symbol *name,
+s_lambda * new_lambda (s_symbol *lambda_type, s_symbol *name,
                        u_form *lambda_list, u_form *body,
                        s_env *env)
 {
@@ -27,7 +27,7 @@ s_lambda * new_lambda (s_symbol *type, s_symbol *name,
         if (check_lambda_list(lambda_list, env))
                 return NULL;
         if ((l = malloc(sizeof(s_lambda)))) {
-                l->type = type;
+                l->lambda_type = lambda_type;
                 l->name = name;
                 l->lambda_list = lambda_list;
                 l->body = body;
