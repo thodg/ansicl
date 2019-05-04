@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include "backtrace.h"
 #include "block.h"
 #include "env.h"
 #include "error.h"
@@ -44,6 +45,7 @@ u_form * eval_lambda_body (s_lambda *lambda, s_frame *frame, s_env *env)
         if (setjmp(up.buf)) {
                 pop_unwind_protect(env);
                 pop_block(&nil()->symbol, env);
+                pop_backtrace_frame(env);
                 env->frame = frame;
                 longjmp(*up.jmp, 1);
         }
@@ -51,6 +53,7 @@ u_form * eval_lambda_body (s_lambda *lambda, s_frame *frame, s_env *env)
         f = cspecial_progn(lambda->body, env);
         pop_unwind_protect(env);
         pop_block(&nil()->symbol, env);
+        pop_backtrace_frame(env);
         env->frame = frame;
         return f;
 }
@@ -62,6 +65,7 @@ u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
         u_form *a = args;
         s_block block;
         env->frame = new_frame(lambda->frame);
+        push_backtrace_frame(lambda, env->frame, env);
         while (consp(f) && consp(a)) {
                 s_symbol *sym = &f->cons.car->symbol;
                 if (!symbolp(sym))

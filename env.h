@@ -4,6 +4,7 @@
 #include "read.h"
 #include "frame.h"
 
+typedef struct backtrace_frame s_backtrace_frame;
 typedef struct block s_block;
 typedef struct error_handler s_error_handler;
 typedef struct tags s_tags;
@@ -20,6 +21,7 @@ typedef struct env
         s_error_handler *error_handler;
         s_tags *tags;
         s_unwind_protect *unwind_protect;
+        s_backtrace_frame *backtrace;
 } s_env;
 
 extern s_env g_env;

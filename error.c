@@ -22,6 +22,7 @@ u_form * error_ (s_string *str, s_env *env)
         s_error_handler *eh = env->error_handler;
         if (eh) {
                 eh->string = str;
+                eh->backtrace = env->backtrace;
                 long_jump(&eh->buf, env);
         }
         fprintf(stderr, "cfacts: %s\n", str->str);

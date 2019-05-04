@@ -11,16 +11,26 @@
 #include "eval.h"
 #include "print.h"
 
+void print_error (s_error_handler *eh, FILE *stream, s_env *env)
+{
+        s_backtrace_frame *bf;
+        fputs("cfacts: ", stream);
+        fputs(eh->string->str, stream);
+        fputs("\nBacktrace:", stream);
+        for (bf = eh->backtrace; bf; bf = bf->next) {
+                print((u_form*) bf->lambda, stream, env);
+                prin1(bf->frame->variables, stream, env);
+        }
+        fputs("\n", stream);
+}
+
 int repl (s_env *env)
 {
         while (env->run) {
                 s_error_handler eh;
                 push_error_handler(&eh, env);
-                if (setjmp(eh.buf)) {
-                        fputs("cfacts: ", stderr);
-                        fputs(eh.string->str, stderr);
-                        fputs("\n", stderr);
-                }
+                if (setjmp(eh.buf))
+                        print_error(&eh, stderr, env);
                 else {
                         u_form *r;
                         u_form *e;

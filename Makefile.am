@@ -15,6 +15,7 @@ endif
 bin_PROGRAMS += cfacts
 cfacts_LDADD = -lreadline -lncurses -lskiplist -lgc
 cfacts_SOURCES = \
+	backtrace.c \
 	block.c \
 	cfacts.c \
 	env.c \

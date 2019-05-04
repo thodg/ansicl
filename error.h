@@ -2,6 +2,7 @@
 #define ERROR_H
 
 #include <setjmp.h>
+#include "backtrace.h"
 #include "env.h"
 #include "form.h"
 
@@ -9,6 +10,7 @@ typedef struct error_handler
 {
         jmp_buf buf;
         s_string *string;
+        s_backtrace_frame *backtrace;
         struct error_handler *next;
 } s_error_handler;
 
