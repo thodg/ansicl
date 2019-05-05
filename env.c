@@ -137,31 +137,32 @@ u_form * let (u_form *bindings, u_form *body, s_env *env)
         return r;
 }
 
-void cfun (const char *name, f_cfun *fun)
+void cfun (const char *name, f_cfun *fun, s_env *env)
 {
-        u_form *name_sym = (u_form*) sym(name);
+        s_symbol *name_sym = sym(name);
         u_form *cf = malloc(sizeof(s_cfun));
-        u_form *c;
-        assert(cf);
-        cf->type = FORM_CFUN;
-        cf->cfun.name = sym(name);
-        cf->cfun.fun = fun;
-        c = (u_form*) new_cons(name_sym, cf);
-        g_env.global_frame->functions = (u_form*)
-                new_cons(c, g_env.global_frame->functions);
+        if (cf) {
+                u_form *c;
+                cf->type = FORM_CFUN;
+                cf->cfun.name = sym(name);
+                cf->cfun.fun = fun;
+                c = cons((u_form*) name_sym, cf);
+                push(env->global_frame->functions, c);
+        }
 }
 
-void cspecial (const char *name, f_cfun *fun)
+void cspecial (const char *name, f_cfun *fun, s_env *env)
 {
-        u_form *name_sym = (u_form*) sym(name);
+        s_symbol *name_sym = sym(name);
         u_form *cf = malloc(sizeof(s_cfun));
-        u_form *c;
-        assert(cf);
-        cf->type = FORM_CFUN;
-        cf->cfun.name = sym(name);
-        cf->cfun.fun = fun;
-        c = (u_form*) new_cons(name_sym, cf);
-        g_env.specials = (u_form*) new_cons(c, g_env.specials);
+        if (cf) {
+                u_form *c;
+                cf->type = FORM_CFUN;
+                cf->cfun.name = name_sym;
+                cf->cfun.fun = fun;
+                c = cons((u_form*) name_sym, cf);
+                push(env->specials, c);
+        }
 }
 
 u_form * defun (s_symbol *name, u_form *lambda_list, u_form *body,
@@ -253,62 +254,65 @@ void env_init (s_env *env, s_stream *si)
         env->frame = env->global_frame = new_frame(NULL);
         env->specials = nil();
         env->tags = NULL;
-        cspecial("quote",          cspecial_quote);
-        cfun("atom",           cfun_atom);
-        cfun("eq",             cfun_eq);
-        cfun("cons",           cfun_cons);
-        cfun("car",            cfun_car);
-        cfun("cdr",            cfun_cdr);
-        cfun("rplaca",         cfun_rplaca);
-        cfun("rplacd",         cfun_rplacd);
-        cspecial("cond",           cspecial_cond);
-        cspecial("case",           cspecial_case);
-        cspecial("do",             cspecial_do);
-        cspecial("when",           cspecial_when);
-        cspecial("unless",         cspecial_unless);
-        cspecial("if",             cspecial_if);
-        cspecial("and",            cspecial_and);
-        cspecial("or",             cspecial_or);
-        cfun("not",            cfun_not);
-        cspecial("prog1",          cspecial_prog1);
-        cspecial("progn",          cspecial_progn);
-        cfun("make-symbol",    cfun_make_symbol);
-        cfun("list",           cfun_list);
-        cfun("list*",          cfun_list_star);
-        cfun("find",           cfun_find);
-        cfun("assoc",          cfun_assoc);
-        cfun("last",           cfun_last);
-        cfun("length",         cfun_length);
-        cfun("append",         cfun_append);
-        cfun("nconc",          cfun_nconc);
-        cspecial("let",            cspecial_let);
-        cspecial("let*",           cspecial_let_star);
-        cspecial("defvar",         cspecial_defvar);
-        cspecial("defparameter",   cspecial_defparameter);
-        cspecial("block",          cspecial_block);
-        cspecial("return-from",    cspecial_return_from);
-        cspecial("return",         cspecial_return);
-        cspecial("tagbody",        cspecial_tagbody);
-        cspecial("go",             cspecial_go);
-        cspecial("unwind-protect", cspecial_unwind_protect);
-        cspecial("setq",           cspecial_setq);
-        cspecial("lambda",         cspecial_lambda);
-        cspecial("defun",          cspecial_defun);
-        cspecial("function",       cspecial_function);
-        cfun("macro-function", cfun_macro_function);
-        cspecial("defmacro",       cspecial_defmacro);
-        cspecial("labels",         cspecial_labels);
-        cspecial("flet",           cspecial_flet);
-        cfun("error",          cfun_error);
-        cfun("eval",           cfun_eval);
-        cfun("apply",          cfun_apply);
-        cfun("funcall",        cfun_funcall);
-        cfun("prin1",          cfun_prin1);
-        cfun("print",          cfun_print);
-        cfun("+",              cfun_plus);
-        cfun("-",              cfun_minus);
-        cfun("*",              cfun_mul);
-        cfun("/",              cfun_div);
+        cspecial("quote",          cspecial_quote,          env);
+        cfun("atom",           cfun_atom,           env);
+        cfun("eq",             cfun_eq,             env);
+        cfun("cons",           cfun_cons,           env);
+        cfun("car",            cfun_car,            env);
+        cfun("cdr",            cfun_cdr,            env);
+        cfun("rplaca",         cfun_rplaca,         env);
+        cfun("rplacd",         cfun_rplacd,         env);
+        cspecial("cond",           cspecial_cond,           env);
+        cspecial("case",           cspecial_case,           env);
+        cspecial("do",             cspecial_do,             env);
+        cspecial("when",           cspecial_when,           env);
+        cspecial("unless",         cspecial_unless,         env);
+        cspecial("if",             cspecial_if,             env);
+        cspecial("and",            cspecial_and,            env);
+        cspecial("or",             cspecial_or,             env);
+        cfun("not",            cfun_not,            env);
+        cspecial("prog1",          cspecial_prog1,          env);
+        cspecial("progn",          cspecial_progn,          env);
+        cfun("make-symbol",    cfun_make_symbol,    env);
+        cfun("list",           cfun_list,           env);
+        cfun("list*",          cfun_list_star,      env);
+        cfun("find",           cfun_find,           env);
+        cfun("assoc",          cfun_assoc,          env);
+        cfun("last",           cfun_last,           env);
+        cfun("length",         cfun_length,         env);
+        cfun("append",         cfun_append,         env);
+        cfun("nconc",          cfun_nconc,          env);
+        cspecial("let",            cspecial_let,            env);
+        cspecial("let*",           cspecial_let_star,       env);
+        cspecial("defvar",         cspecial_defvar,         env);
+        cspecial("defparameter",   cspecial_defparameter,   env);
+        cspecial("block",          cspecial_block,          env);
+        cspecial("return-from",    cspecial_return_from,    env);
+        cspecial("return",         cspecial_return,         env);
+        cspecial("tagbody",        cspecial_tagbody,        env);
+        cspecial("go",             cspecial_go,             env);
+        cspecial("unwind-protect", cspecial_unwind_protect, env);
+        cspecial("setq",           cspecial_setq,           env);
+        cspecial("lambda",         cspecial_lambda,         env);
+        cspecial("defun",          cspecial_defun,          env);
+        cspecial("function",       cspecial_function,       env);
+        cfun("macro-function", cfun_macro_function, env);
+        cspecial("defmacro",       cspecial_defmacro,       env);
+        cspecial("labels",         cspecial_labels,         env);
+        cspecial("flet",           cspecial_flet,           env);
+        cfun("error",          cfun_error,          env);
+        cfun("eval",           cfun_eval,           env);
+        cfun("apply",          cfun_apply,          env);
+        cfun("funcall",        cfun_funcall,        env);
+        cfun("prin1",          cfun_prin1,          env);
+        cfun("print",          cfun_print,          env);
+        cfun("+",              cfun_plus,           env);
+        cfun("-",              cfun_minus,          env);
+        cfun("*",              cfun_mul,            env);
+        cfun("/",              cfun_div,            env);
+        cfun("load",           cfun_load,           env);
+        load_file("init.lisp", env);
+        load_file("backquote.lisp", env);
 }
 
 s_frame * push_frame (s_env *env)

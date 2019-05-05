@@ -1,7 +1,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-
+#include <errno.h>
 #include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -13,6 +13,7 @@
 #include "package.h"
 #include "read.h"
 #include "form_string.h"
+#include "unwind_protect.h"
 
 s_stream * stream_readline (const char *prompt)
 {
@@ -46,7 +47,7 @@ s_stream * stream_stdin ()
         return stream;
 }
 
-s_stream * stream_open (const char *file_name)
+s_stream * stream_open (const char *file_name, s_env *env)
 {
         s_stream *stream = malloc(sizeof(s_stream));
         if (stream) {
@@ -54,7 +55,9 @@ s_stream * stream_open (const char *file_name)
                 stream->n = 0;
                 stream->start = stream->end = 0;
                 stream->in_cons = 0;
-                stream->fp = fopen(file_name, "r");
+                if (!(stream->fp = fopen(file_name, "r")))
+                        error(env, "open %s: %s", file_name,
+                              strerror(errno));
                 stream->prompt = NULL;
                 stream->file_name = file_name;
                 stream->line = 0;
@@ -164,7 +167,7 @@ u_form * read_string (s_stream *stream)
         if (peek_char(stream) == '"') {
                 stream->start++;
                 while (!refill(stream)) {
-                        for (c = stream->start + 1; c < stream->end &&
+                        for (c = stream->start; c < stream->end &&
                                      stream->s[c] != '"'; c++)
                                 ;
                         if (f)
@@ -319,5 +322,44 @@ u_form * read_form (s_stream *stream, s_env *env)
         read_errors(stream, env);
         if ((f = read_symbol(stream)))
                 return f;
-        return error(env, "read failed");
+        if (refill(stream))
+                return NULL;
+        return NULL;
+}
+
+u_form * load_stream (s_stream *stream, s_env *env)
+{
+        static s_symbol *t_sym = NULL;
+        u_form *f;
+        s_error_handler eh;
+        if (!t_sym)
+                t_sym = sym("t");
+        if (setjmp(eh.buf)) {
+                fprintf(stderr, "error while loading %s line %lu\n",
+                        stream->file_name, stream->line);
+                print_error(&eh, stderr, env);
+                pop_error_handler(env);
+                return nil();
+        }
+        push_error_handler(&eh, env);
+        while ((f = read_form(stream, env)))
+                eval(f, env);
+        pop_error_handler(env);
+        return (u_form*) t_sym;
+}
+
+u_form * load_file (const char *path, s_env *env)
+{
+        s_stream *stream = stream_open(path, env);
+        s_unwind_protect up;
+        u_form *result;
+        if (setjmp(up.buf)) {
+                pop_unwind_protect(env);
+                stream_close(stream);
+        }
+        push_unwind_protect(&up, env);
+        result = load_stream(stream, env);
+        pop_unwind_protect(env);
+        stream_close(stream);
+        return result;
 }

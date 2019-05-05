@@ -39,8 +39,8 @@ u_form * defparameter (s_symbol *name, u_form *value, s_env *env);
 u_form * let (u_form *bindings, u_form *body, s_env *env);
 u_form * let_star (u_form *bindings, u_form *body, s_env *env);
 void env_init (s_env *env, s_stream *si);
-void cfun (const char *name, f_cfun *f);
-void cspecial (const char *name, f_cfun *f);
+void cfun (const char *name, f_cfun *f, s_env *env);
+void cspecial (const char *name, f_cfun *f, s_env *env);
 u_form * defun (s_symbol *name, u_form *lambda_list, u_form *body,
                 s_env *env);
 u_form * function (s_symbol *name, s_env *env);

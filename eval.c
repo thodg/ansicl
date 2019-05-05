@@ -7,6 +7,7 @@
 #include "lambda.h"
 #include "package.h"
 #include "print.h"
+#include "read.h"
 #include "tags.h"
 #include "unwind_protect.h"
 
@@ -1191,4 +1192,12 @@ u_form * cfun_div (u_form *args, s_env *env)
                 args = args->cons.cdr;
         }
         return a;
+}
+
+u_form * cfun_load (u_form *args, s_env *env)
+{
+        if (!consp(args) || !stringp(args->cons.car) ||
+            args->cons.cdr != nil())
+                return error(env, "invalid arguments for load");
+        return load_file(args->cons.car->string.str, env);
 }

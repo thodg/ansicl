@@ -20,9 +20,12 @@ typedef struct stream {
 
 s_stream * stream_readline (const char *prompt);
 s_stream * stream_stdin ();
-s_stream * stream_open (const char *file_name);
+s_stream * stream_open (const char *file_name, s_env *env);
 void       stream_close (s_stream *stream);
 
-u_form * read_form (s_stream *si, s_env *env);
+u_form * read_form (s_stream *stream, s_env *env);
+
+u_form * load_stream (s_stream *stream, s_env *env);
+u_form * load_file (const char *path, s_env *env);
 
 #endif
