@@ -1,17 +1,28 @@
 #ifndef READ_H
 #define READ_H
 
+#include <stdio.h>
 #include "form.h"
 
 typedef struct env s_env;
 
-typedef struct standard_input {
+typedef struct stream {
         char *s;
+        size_t n;
         unsigned long start;
         unsigned long end;
         int in_cons;
-} s_standard_input;
+        FILE *fp;
+        const char *prompt;
+        const char *file_name;
+        unsigned long line;
+} s_stream;
 
-u_form * read_form (s_standard_input *si, s_env *env);
+s_stream * stream_readline (const char *prompt);
+s_stream * stream_stdin ();
+s_stream * stream_open (const char *file_name);
+void       stream_close (s_stream *stream);
+
+u_form * read_form (s_stream *si, s_env *env);
 
 #endif

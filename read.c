@@ -14,42 +14,103 @@
 #include "read.h"
 #include "form_string.h"
 
-int refill (s_standard_input *si)
+s_stream * stream_readline (const char *prompt)
 {
-        while (!si->s || si->start == si->end) {
-                if (si->s)
-                        free(si->s);
-                si->s = readline("cfacts> ");
-                if (!si->s)
-                        return -1;
-                add_history(si->s);
-                si->start = 0;
-                si->end = strlen(si->s);
+        s_stream *stream = malloc(sizeof(s_stream));
+        if (stream) {
+                stream->s = NULL;
+                stream->n = 0;
+                stream->start = stream->end = 0;
+                stream->in_cons = 0;
+                stream->fp = NULL;
+                stream->prompt = prompt;
+                stream->file_name = "readline";
+                stream->line = 0;
+        }
+        return stream;
+}
+
+s_stream * stream_stdin ()
+{
+        s_stream *stream = malloc(sizeof(s_stream));
+        if (stream) {
+                stream->s = NULL;
+                stream->n = 0;
+                stream->start = stream->end = 0;
+                stream->in_cons = 0;
+                stream->fp = stdin;
+                stream->prompt = NULL;
+                stream->file_name = "stdin";
+                stream->line = 0;
+        }
+        return stream;
+}
+
+s_stream * stream_open (const char *file_name)
+{
+        s_stream *stream = malloc(sizeof(s_stream));
+        if (stream) {
+                stream->s = NULL;
+                stream->n = 0;
+                stream->start = stream->end = 0;
+                stream->in_cons = 0;
+                stream->fp = fopen(file_name, "r");
+                stream->prompt = NULL;
+                stream->file_name = file_name;
+                stream->line = 0;
+        }
+        return stream;
+}
+
+void stream_close (s_stream *stream)
+{
+        if (stream && stream->fp)
+                fclose(stream->fp);
+}
+
+int refill (s_stream *stream)
+{
+        while (!stream->s || stream->start == stream->end) {
+                stream->start = 0;
+                if (stream->fp) {
+                        ssize_t end = getline(&stream->s, &stream->n,
+                                              stream->fp);
+                        if (end < 0)
+                                return -1;
+                        stream->end = end - 1;
+                        stream->s[stream->end] = 0;
+                }
+                else {
+                        if (!(stream->s = readline(stream->prompt)))
+                                return -1;
+                        add_history(stream->s);
+                        stream->end = strlen(stream->s);
+                }
         }
         return 0;
 }
 
-int read_char (s_standard_input *si)
+int read_char (s_stream *stream)
 {
-        if (refill(si))
+        if (refill(stream))
                 return -1;
-        return si->s[si->start++];
+        return stream->s[stream->start++];
 }
 
-int peek_char (s_standard_input *si)
+int peek_char (s_stream *stream)
 {
-        if (refill(si))
+        if (refill(stream))
                 return -1;
-        return si->s[si->start];
+        return stream->s[stream->start];
 }
 
-int read_spaces (s_standard_input *si)
+int read_spaces (s_stream *stream)
 {
         int c;
-        while ((c = peek_char(si)) >= 0)
+        while ((c = peek_char(stream)) >= 0)
                 switch (c) {
                 case ' ': case '\t': case '\r': case '\n':
-                        read_char(si);
+                        read_char(stream);
                         continue;
                 default:
                         return 0;
@@ -57,17 +118,17 @@ int read_spaces (s_standard_input *si)
         return -1;
 }
 
-u_form * read_cons (s_standard_input *si, s_env *env)
+u_form * read_cons (s_stream *stream, s_env *env)
 {
-        int c = peek_char(si);
+        int c = peek_char(stream);
         if (c == '(') {
                 u_form *head = NULL;
                 u_form **tail = &head;
-                read_char(si);
-                si->in_cons++;
-                while (!read_spaces(si) && (c = peek_char(si)) >= 0) {
+                read_char(stream);
+                stream->in_cons++;
+                while (!read_spaces(stream) && (c = peek_char(stream)) >= 0) {
                         if (c == ')') {
-                                read_char(si);
+                                read_char(stream);
                                 *tail = nil();
                                 return head;
                         }
@@ -76,10 +137,10 @@ u_form * read_cons (s_standard_input *si, s_env *env)
                                         return error(env, "unexpect"
                                                      "ed dot");
                                 else {
-                                        read_char(si);
-                                        if (!(*tail = read_form(si, env)) ||
-                                            read_spaces(si) ||
-                                            (c = read_char(si)) < 0)
+                                        read_char(stream);
+                                        if (!(*tail = read_form(stream, env)) ||
+                                            read_spaces(stream) ||
+                                            (c = read_char(stream)) < 0)
                                                 return NULL;
                                         if (c == ')')
                                                 return head;
@@ -87,7 +148,7 @@ u_form * read_cons (s_standard_input *si, s_env *env)
                                                      "dotted list");
                                 }
                         }
-                        if (!(*tail = read_form(si, env)))
+                        if (!(*tail = read_form(stream, env)))
                                 return NULL;
                         *tail = (u_form*) new_cons(*tail, NULL);
                         tail = &(*tail)->cons.cdr;
@@ -96,46 +157,46 @@ u_form * read_cons (s_standard_input *si, s_env *env)
         return NULL;
 }
 
-u_form * read_string (s_standard_input *si)
+u_form * read_string (s_stream *stream)
 {
         u_form *f = NULL;
         unsigned long c;
-        if (peek_char(si) == '"') {
-                si->start++;
-                while (!refill(si)) {
-                        for (c = si->start + 1; c < si->end &&
-                                     si->s[c] != '"'; c++)
+        if (peek_char(stream) == '"') {
+                stream->start++;
+                while (!refill(stream)) {
+                        for (c = stream->start + 1; c < stream->end &&
+                                     stream->s[c] != '"'; c++)
                                 ;
                         if (f)
                                 f = (u_form*)
                                         string_append((s_string*) f,
-                                                      si->s + si->start,
-                                                      c - si->start);
+                                                      stream->s + stream->start,
+                                                      c - stream->start);
                         else
-                                f = (u_form*)new_string(c - si->start,
-                                                        si->s + si->start);
-                        if (si->s[c] == '"') {
-                                si->start = c + 1;
+                                f = (u_form*)new_string(c - stream->start,
+                                                        stream->s + stream->start);
+                        if (stream->s[c] == '"') {
+                                stream->start = c + 1;
                                 return f;
                         }
                         f = (u_form*) string_append((s_string*) f, "\n",
                                                     1);
-                        si->start = c;
+                        stream->start = c;
                 }
         }
         return NULL;
 }
 
-u_form * read_sharp (s_standard_input *si, s_env *env)
+u_form * read_sharp (s_stream *stream, s_env *env)
 {
-        if (peek_char(si) == '#') {
+        if (peek_char(stream) == '#') {
                 int c;
-                read_char(si);
-                c = peek_char(si);
+                read_char(stream);
+                c = peek_char(stream);
                 switch (c) {
                 case '\'':
-                        read_char(si);
-                        return cons_function(read_form(si, env));
+                        read_char(stream);
+                        return cons_function(read_form(stream, env));
                         break;
                 }
                 return error(env, "undefined # macro character %c", c);
@@ -149,114 +210,114 @@ int endchar (int c)
                 c == '\t' || c == '\r' || c == '\n' || c == '\'';
 }
 
-u_form * read_number (s_standard_input *si)
+u_form * read_number (s_stream *stream)
 {
         u_form *f = NULL;
-        unsigned long i = si->start;
+        unsigned long i = stream->start;
         char *end;
         unsigned long j = 0;
-        while (i < si->end && '0' <= si->s[i] && si->s[i] <= '9')
+        while (i < stream->end && '0' <= stream->s[i] && stream->s[i] <= '9')
                 i++;
-        if (i < si->end && si->s[i] == '.') {
-                f = (u_form*) new_double(strtod(si->s + si->start,
+        if (i < stream->end && stream->s[i] == '.') {
+                f = (u_form*) new_double(strtod(stream->s + stream->start,
                                                 &end));
-                j = end - (si->s + si->start);
+                j = end - (stream->s + stream->start);
         }
-        else if (i > si->start) {
-                f = (u_form*) new_long(strtol(si->s + si->start,
+        else if (i > stream->start) {
+                f = (u_form*) new_long(strtol(stream->s + stream->start,
                                               &end, 10));
-                j = end - (si->s + si->start);
+                j = end - (stream->s + stream->start);
         }
-        if (j > 0 && (si->start + j >= si->end || endchar(si->s[si->start + j]))) {
-                si->start += j;
+        if (j > 0 && (stream->start + j >= stream->end || endchar(stream->s[stream->start + j]))) {
+                stream->start += j;
                 return f;
         }
         return NULL;
 }
 
-u_form * read_symbol (s_standard_input *si)
+u_form * read_symbol (s_stream *stream)
 {
         u_form *f;
-        unsigned long i = si->start;
+        unsigned long i = stream->start;
         unsigned long j = i;
-        while (i < si->end && !endchar(si->s[i])) {
+        while (i < stream->end && !endchar(stream->s[i])) {
                 j = i;
                 i++;
         }
         j = i;
-        f = (u_form*) new_string(j - si->start, si->s + si->start);
+        f = (u_form*) new_string(j - stream->start, stream->s + stream->start);
         f = (u_form*) intern(&f->string, NULL);
-        si->start = j;
+        stream->start = j;
         return f;
 }
 
-u_form * read_quote (s_standard_input *si, s_env *env)
+u_form * read_quote (s_stream *stream, s_env *env)
 {
-        if (peek_char(si) == '\'') {
-                read_char(si);
-                u_form *f = cons_quote(read_form(si, env));
+        if (peek_char(stream) == '\'') {
+                read_char(stream);
+                u_form *f = cons_quote(read_form(stream, env));
                 return f;
         }
         return NULL;
 }
 
-u_form * read_backquote (s_standard_input *si, s_env *env)
+u_form * read_backquote (s_stream *stream, s_env *env)
 {
-        if (peek_char(si) == '`') {
-                read_char(si);
-                u_form *f = cons_backquote(read_form(si, env));
+        if (peek_char(stream) == '`') {
+                read_char(stream);
+                u_form *f = cons_backquote(read_form(stream, env));
                 return f;
         }
         return NULL;
 }
 
-u_form * read_comma (s_standard_input *si, s_env *env)
+u_form * read_comma (s_stream *stream, s_env *env)
 {
-        if (peek_char(si) == ',') {
-                read_char(si);
-                switch (peek_char(si)) {
+        if (peek_char(stream) == ',') {
+                read_char(stream);
+                switch (peek_char(stream)) {
                 case '@':
-                        read_char(si);
-                        return cons_comma_at(read_form(si, env), env);
+                        read_char(stream);
+                        return cons_comma_at(read_form(stream, env), env);
                 case '.':
-                        read_char(si);
-                        return cons_comma_dot(read_form(si, env), env);
+                        read_char(stream);
+                        return cons_comma_dot(read_form(stream, env), env);
                 default:
-                        return cons_comma(read_form(si, env), env);
+                        return cons_comma(read_form(stream, env), env);
                 }
         }
         return NULL;
 }
 
-void read_errors (s_standard_input *si, s_env *env)
+void read_errors (s_stream *stream, s_env *env)
 {
-        if (peek_char(si) == ')') {
-                read_char(si);
+        if (peek_char(stream) == ')') {
+                read_char(stream);
                 error(env, "unmatched close parenthesis");
         }
 }
 
-u_form * read_form (s_standard_input *si, s_env *env)
+u_form * read_form (s_stream *stream, s_env *env)
 {
         u_form *f;
-        if (read_spaces(si))
+        if (read_spaces(stream))
                 return NULL;
-        if ((f = read_quote(si, env)))
+        if ((f = read_quote(stream, env)))
                 return f;
-        if ((f = read_backquote(si, env)))
+        if ((f = read_backquote(stream, env)))
                 return f;
-        if ((f = read_comma(si, env)))
+        if ((f = read_comma(stream, env)))
                 return f;
-        if ((f = read_cons(si, env)))
+        if ((f = read_cons(stream, env)))
                 return f;
-        if ((f = read_string(si)))
+        if ((f = read_string(stream)))
                 return f;
-        if ((f = read_sharp(si, env)))
+        if ((f = read_sharp(stream, env)))
                 return f;
-        if ((f = read_number(si)))
+        if ((f = read_number(stream)))
                 return f;
-        read_errors(si, env);
-        if ((f = read_symbol(si)))
+        read_errors(stream, env);
+        if ((f = read_symbol(stream)))
                 return f;
         return error(env, "read failed");
 }

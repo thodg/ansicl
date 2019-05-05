@@ -246,7 +246,7 @@ u_form * flet (u_form *bindings, u_form *body, s_env *env)
         return r;
 }
 
-void env_init (s_env *env, s_standard_input *si)
+void env_init (s_env *env, s_stream *si)
 {
         env->si = si;
         env->run = 1;

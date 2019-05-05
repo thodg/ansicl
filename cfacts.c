@@ -1,4 +1,5 @@
 
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <readline/readline.h>
@@ -46,21 +47,16 @@ int repl (s_env *env)
         return 0;
 }
 
-void init_standard_input (s_standard_input *si)
-{
-        si->s = NULL;
-        si->start = 0;
-        si->end = 0;
-        si->in_cons = 0;
-}
-
 int main ()
 {
-        s_standard_input si;
+        s_stream *stream;
         srand(42);
         init_packages();
-        init_standard_input(&si);
-        env_init(&g_env, &si);
+        if (isatty(0))
+                stream = stream_readline("cfacts> ");
+        else
+                stream = stream_stdin();
+        env_init(&g_env, stream);
         using_history();
         return repl(&g_env);
 }
