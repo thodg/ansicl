@@ -74,6 +74,7 @@ u_form * cspecial_return_from (u_form *args, s_env *env);
 u_form * cspecial_return (u_form *args, s_env *env);
 u_form * cspecial_tagbody (u_form *args, s_env *env);
 u_form * cspecial_go (u_form *args, s_env *env);
+u_form * cspecial_unwind_protect (u_form *args, s_env *env);
 
 u_form * cspecial_lambda (u_form *args, s_env *env);
 u_form * cspecial_defun (u_form *args, s_env *env);

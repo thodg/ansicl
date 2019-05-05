@@ -290,6 +290,7 @@ void env_init (s_env *env, s_stream *si)
         cspecial("return",         cspecial_return);
         cspecial("tagbody",        cspecial_tagbody);
         cspecial("go",             cspecial_go);
+        cspecial("unwind-protect", cspecial_unwind_protect);
         cspecial("setq",           cspecial_setq);
         cspecial("lambda",         cspecial_lambda);
         cspecial("defun",          cspecial_defun);

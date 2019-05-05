@@ -898,6 +898,13 @@ u_form * cspecial_go (u_form *args, s_env *env)
         return nil();
 }
 
+u_form * cspecial_unwind_protect (u_form *args, s_env *env)
+{
+        if (!consp(args))
+                return error(env, "invalid unwind-protect form");
+        return unwind_protect(args->cons.car, args->cons.cdr, env);
+}
+
 u_form * cspecial_lambda (u_form *args, s_env *env)
 {
         if (!consp(args) || !consp(args->cons.cdr))

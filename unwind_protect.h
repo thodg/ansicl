@@ -13,6 +13,7 @@ typedef struct unwind_protect {
 
 void push_unwind_protect (s_unwind_protect *up, s_env *env);
 void  pop_unwind_protect (s_env *env);
+u_form *  unwind_protect (u_form *form, u_form *body, s_env *env);
 
 void long_jump (jmp_buf *buf, s_env *env);
 
