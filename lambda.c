@@ -65,7 +65,8 @@ u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
         u_form *a = args;
         s_block block;
         env->frame = new_frame(lambda->frame);
-        push_backtrace_frame(lambda, env->frame, env);
+        push_backtrace_frame((u_form*) lambda, env->frame->variables,
+                             env);
         while (consp(f) && consp(a)) {
                 s_symbol *sym = &f->cons.car->symbol;
                 if (!symbolp(sym))

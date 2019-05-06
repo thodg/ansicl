@@ -48,8 +48,9 @@ void print_error (s_error_handler *eh, FILE *stream, s_env *env)
         fputs(eh->string->str, stream);
         fputs("\nBacktrace:", stream);
         for (bf = eh->backtrace; bf; bf = bf->next) {
-                print((u_form*) bf->lambda, stream, env);
-                prin1(bf->frame->variables, stream, env);
+                print(bf->fun, stream, env);
+                if (bf->vars)
+                        prin1(bf->vars, stream, env);
         }
         fputs("\n", stream);
 }
