@@ -2,17 +2,15 @@
 #define TAGS_H
 
 #include <setjmp.h>
-#include "form.h"
+#include "typedefs.h"
 
-typedef struct env s_env;
-
-typedef struct tags
+struct tags
 {
         u_form *tags;
         u_form *go_tag;
         jmp_buf buf;
-        struct tags *next;
-} s_tags;
+        s_tags *next;
+};
 
 void     push_tags (s_tags *tags, s_env *env);
 void      pop_tags (s_env *env);

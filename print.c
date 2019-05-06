@@ -34,7 +34,7 @@ void prin1_cons (s_cons *cons, FILE *stream, s_env *env)
 void prin1_string (s_string *s, FILE *stream)
 {
         unsigned long len = s->length;
-        char *c = s->str;
+        char *c = string_str(s);
         fputc('"', stream);
         while (len--) {
                 if (*c == '"')
@@ -48,20 +48,20 @@ void prin1_symbol (s_symbol *sym, FILE *stream)
 {
         if (!sym->package)
                 fputs("#:", stream);
-        fputs(sym->string->str, stream);
+        fputs(string_str(sym->string), stream);
 }
 
 void prin1_package (s_package *pkg, FILE *stream)
 {
         fputs("#<package ", stream);
-        fputs(pkg->name->string->str, stream);
+        fputs(string_str(pkg->name->string), stream);
         fputs(">", stream);
 }
 
 void prin1_cfun (s_cfun *cf, FILE *stream)
 {
         fputs("#<cfun ", stream);
-        fputs(cf->name->string->str, stream);
+        fputs(string_str(cf->name->string), stream);
         fputs(">", stream);
 }
 
@@ -81,7 +81,7 @@ void prin1_long (s_long *lng, FILE *stream)
 
 void prin1_double (s_double *dbl, FILE *stream)
 {
-        fprintf(stream, "%lg", dbl->dbl);
+        fprintf(stream, "%g", dbl->dbl);
 }
 
 void prin1 (u_form *f, FILE *stream, s_env *env)

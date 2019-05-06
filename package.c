@@ -20,7 +20,7 @@ int compare_symbols (void *a, void *b)
         c = skiplist_compare_ptr(sa->package, sb->package);
         if (c != 0)
                 return c;
-        return strcmp(sa->string->str, sb->string->str);
+        return strcmp(string_str(sa->string), string_str(sb->string));
 }
 
 s_package * cfacts_package ()
@@ -40,12 +40,13 @@ s_package * cfacts_package ()
 s_symbol * find_symbol (s_string *s, s_package *pkg)
 {
         s_symbol sym;
+        s_skiplist_node *n;
         if (!pkg)
                 pkg = cfacts_package();
         sym.type = FORM_SYMBOL;
         sym.package = pkg;
         sym.string = s;
-        s_skiplist_node *n = skiplist_find(pkg->symbols, &sym);
+        n = skiplist_find(pkg->symbols, &sym);
         if (n)
                 return n->value;
         return NULL;
@@ -104,13 +105,7 @@ void unintern (s_string *s, s_package *pkg)
 
 void delete_package (s_package *pkg)
 {
-        s_skiplist_node *n = skiplist_node_next(pkg->symbols->head, 0);
-        while (n) {
-                free(n->value);
-                n = skiplist_node_next(n, 0);
-        }
-        delete_skiplist(pkg->symbols);
-        free(pkg);
+        (void) pkg;
 }
 
 int compare_packages (void *a, void *b)

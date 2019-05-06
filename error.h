@@ -4,15 +4,15 @@
 #include <setjmp.h>
 #include "backtrace.h"
 #include "env.h"
-#include "form.h"
+#include "typedefs.h"
 
-typedef struct error_handler
+struct error_handler
 {
         jmp_buf buf;
         s_string *string;
         s_backtrace_frame *backtrace;
-        struct error_handler *next;
-} s_error_handler;
+        s_error_handler *next;
+};
 
 void  push_error_handler (s_error_handler *eh, s_env *env);
 void   pop_error_handler (s_env *env);

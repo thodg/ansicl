@@ -2,14 +2,13 @@
 #define UNWIND_PROTECT_H
 
 #include <setjmp.h>
+#include "typedefs.h"
 
-typedef struct env s_env;
-
-typedef struct unwind_protect {
+struct unwind_protect {
         jmp_buf buf;
         jmp_buf *jmp;
-        struct unwind_protect *next;
-} s_unwind_protect;
+        s_unwind_protect *next;
+};
 
 void push_unwind_protect (s_unwind_protect *up, s_env *env);
 void  pop_unwind_protect (s_env *env);

@@ -56,7 +56,7 @@ void pop_block (s_symbol *name, s_env *env)
 {
         s_block **pb = find_block(name, env);
         if (!pb)
-                error(env, "no block named %s", name->string->str);
+                error(env, "no block named %s", string_str(name->string));
         *pb = (*pb)->next;
 }
 
@@ -65,7 +65,7 @@ void return_from (s_symbol *name, u_form *value, s_env *env)
         s_block **pb = find_block(name, env);
         if (!pb) {
                 error(env, "return from unknown block %s",
-                      name->string->str);
+                      string_str(name->string));
                 return;
         }
         (*pb)->return_value = value;

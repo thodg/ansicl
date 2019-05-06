@@ -19,9 +19,9 @@ int repl (s_env *env)
                 if (setjmp(eh.buf))
                         print_error(&eh, stderr, env);
                 else {
-                        push_error_handler(&eh, env);
                         u_form *r;
                         u_form *e;
+                        push_error_handler(&eh, env);
                         if (!(r = read_form(env->si, env))) {
                                 env->run = 0;
                                 break;

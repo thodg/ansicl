@@ -2,16 +2,14 @@
 #define BLOCK_H
 
 #include <setjmp.h>
-#include "form.h"
+#include "typedefs.h"
 
-typedef struct block {
+struct block {
         s_symbol *name;
         u_form *return_value;
         jmp_buf buf;
         struct block *next;
-} s_block;
-
-typedef struct env s_env;
+};
 
 void       push_block (s_block *b, s_symbol *name, s_env *env);
 s_block ** find_block (s_symbol *name, s_env *env);

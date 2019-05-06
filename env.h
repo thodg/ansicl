@@ -3,14 +3,9 @@
 
 #include "read.h"
 #include "frame.h"
+#include "typedefs.h"
 
-typedef struct backtrace_frame s_backtrace_frame;
-typedef struct block s_block;
-typedef struct error_handler s_error_handler;
-typedef struct tags s_tags;
-typedef struct unwind_protect s_unwind_protect;
-
-typedef struct env
+struct env
 {
         int run;
         s_stream *si;
@@ -22,7 +17,7 @@ typedef struct env
         s_tags *tags;
         s_unwind_protect *unwind_protect;
         s_backtrace_frame *backtrace;
-} s_env;
+};
 
 s_env g_env;
 

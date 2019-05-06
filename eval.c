@@ -37,7 +37,7 @@ u_form * eval_variable (u_form *form, s_env *env)
                 u_form **f = symbol_variable(&form->symbol, env);
                 if (!f)
                         return error(env, "symbol not bound: %s",
-                                     form->symbol.string->str);
+                                     string_str(form->symbol.string));
                 return *f;
         }
         return NULL;
@@ -88,7 +88,7 @@ u_form * eval_call (u_form *form, s_env *env)
                         return eval(funcall(*f, form->cons.cdr, env), env);
                 if (!(f = symbol_function(sym, env)))
                         return error(env, "function not bound: %s",
-                                     sym->string->str);
+                                     string_str(sym->string));
                 a = mapcar_eval(form->cons.cdr, env);
                 return funcall(*f, a, env);
         }
@@ -894,7 +894,7 @@ u_form * cspecial_go (u_form *args, s_env *env)
         name = &args->cons.car->symbol;
         if (!(tags = find_tag(name, env->tags)))
                 return error(env, "go to nonexistent label %s",
-                             name->string->str);
+                             string_str(name->string));
         long_jump(&tags->buf, env);
         return nil();
 }
@@ -908,9 +908,10 @@ u_form * cspecial_unwind_protect (u_form *args, s_env *env)
 
 u_form * cspecial_lambda (u_form *args, s_env *env)
 {
+        s_lambda *l;
         if (!consp(args) || !consp(args->cons.cdr))
                 return error(env, "invalid lambda form");
-        s_lambda *l = new_lambda(sym("lambda"), &nil()->symbol,
+        l = new_lambda(sym("lambda"), &nil()->symbol,
                                  args->cons.car, args->cons.cdr,
                                  env);
         return (u_form*) l;
@@ -954,10 +955,11 @@ u_form * cspecial_defmacro (u_form *args, s_env *env)
 
 u_form * cfun_macro_function (u_form *args, s_env *env)
 {
+        u_form **m;
         if (!consp(args) || !symbolp(args->cons.car) ||
             args->cons.cdr != nil())
                 return error(env, "invalid macro-function call");
-        u_form **m = symbol_macro(&args->cons.car->symbol, env);
+        m = symbol_macro(&args->cons.car->symbol, env);
         if (m)
                 return *m;
         return nil();
@@ -1210,5 +1212,5 @@ u_form * cfun_load (u_form *args, s_env *env)
         if (!consp(args) || !stringp(args->cons.car) ||
             args->cons.cdr != nil())
                 return error(env, "invalid arguments for load");
-        return load_file(args->cons.car->string.str, env);
+        return load_file(string_str(&args->cons.car->string), env);
 }

@@ -52,7 +52,7 @@ u_form * setq (s_symbol *name, u_form *value, s_env *env)
 {
         u_form **f = symbol_variable(name, env);
         if (!f)
-                return error(env, "unbound symbol %s", name->string->str);
+                return error(env, "unbound symbol %s", string_str(name->string));
         *f = value;
         return value;
 }
@@ -202,6 +202,7 @@ u_form * labels (u_form *bindings, u_form *body, s_env *env)
                 u_form *name;
                 u_form *lambda_list;
                 u_form *body;
+                s_lambda *l;
                 if (!consp(first) || !consp(first->cons.cdr))
                         return error(env, "invalid binding for labels");
                 name = first->cons.car;
@@ -209,8 +210,8 @@ u_form * labels (u_form *bindings, u_form *body, s_env *env)
                 body = first->cons.cdr->cons.cdr;
                 if (!symbolp(name))
                         return error(env, "invalid binding for labels");
-                s_lambda *l = new_lambda(sym("labels"), &name->symbol,
-                                         lambda_list, body, env);
+                l = new_lambda(sym("labels"), &name->symbol,
+                               lambda_list, body, env);
                 frame_new_function(&name->symbol, l, f);
                 bindings = bindings->cons.cdr;
         }
@@ -229,6 +230,7 @@ u_form * flet (u_form *bindings, u_form *body, s_env *env)
                 u_form *name;
                 u_form *lambda_list;
                 u_form *body;
+                s_lambda *l;
                 if (!consp(first) || !consp(first->cons.cdr))
                         return error(env, "invalid binding for labels");
                 name = first->cons.car;
@@ -236,8 +238,8 @@ u_form * flet (u_form *bindings, u_form *body, s_env *env)
                 body = first->cons.cdr->cons.cdr;
                 if (!symbolp(name))
                         return error(env, "invalid binding for labels");
-                s_lambda *l = new_lambda(sym("labels"), &name->symbol,
-                                         lambda_list, body, env);
+                l = new_lambda(sym("labels"), &name->symbol,
+                               lambda_list, body, env);
                 frame_new_function(&name->symbol, l, f);
                 bindings = bindings->cons.cdr;
         }

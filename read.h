@@ -3,10 +3,9 @@
 
 #include <stdio.h>
 #include "form.h"
+#include "typedefs.h"
 
-typedef struct env s_env;
-
-typedef struct stream {
+struct stream {
         char *s;
         size_t n;
         unsigned long start;
@@ -16,7 +15,7 @@ typedef struct stream {
         const char *prompt;
         const char *file_name;
         unsigned long line;
-} s_stream;
+};
 
 s_stream * stream_readline (const char *prompt);
 s_stream * stream_stdin ();

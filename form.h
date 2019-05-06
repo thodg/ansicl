@@ -1,22 +1,8 @@
 #ifndef FORM_H
 #define FORM_H
 
-#include <skiplist.h>
-
-typedef struct cons    s_cons;
-typedef struct string  s_string;
-typedef struct symbol  s_symbol;
-typedef struct package s_package;
-typedef struct cfun    s_cfun;
-typedef struct lambda  s_lambda;
-typedef struct lng     s_long;
-typedef struct dbl     s_double;
-
-typedef union form u_form;
-
-typedef struct env s_env;
-typedef u_form * f_cfun (u_form *args, s_env *env);
-typedef struct frame s_frame;
+#include "skiplist.h"
+#include "typedefs.h"
 
 struct cons {
         unsigned long type;
@@ -27,8 +13,9 @@ struct cons {
 struct string {
         unsigned long type;
         unsigned long length;
-        char str[];
 };
+
+#define string_str(s) ((char*)((s) + 1))
 
 struct symbol {
         unsigned long type;
@@ -77,6 +64,7 @@ union form {
         s_lambda lambda;
         s_long lng;
         s_double dbl;
+        s_skiplist skiplist;
 };
 
 enum e_form_type { FORM_CONS,
@@ -86,7 +74,8 @@ enum e_form_type { FORM_CONS,
                    FORM_CFUN,
                    FORM_LAMBDA,
                    FORM_LONG,
-                   FORM_DOUBLE };
+                   FORM_DOUBLE,
+                   FORM_SKIPLIST };
 
 #define null(x)    ((x) == nil())
 #define consp(x)   ((x) && (x)->type == FORM_CONS)

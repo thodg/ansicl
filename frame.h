@@ -3,13 +3,13 @@
 
 #include "form.h"
 
-typedef struct frame
+struct frame
 {
         u_form *variables;
         u_form *functions;
         u_form *macros;
         struct frame *parent;
-} s_frame;
+};
 
 s_frame * new_frame (s_frame *parent);
 void          frame_new_variable (s_symbol *sym, u_form *value,

@@ -258,8 +258,7 @@ u_form * read_quote (s_stream *stream, s_env *env)
 {
         if (peek_char(stream) == '\'') {
                 read_char(stream);
-                u_form *f = cons_quote(read_form(stream, env));
-                return f;
+                return cons_quote(read_form(stream, env));
         }
         return NULL;
 }
@@ -268,8 +267,7 @@ u_form * read_backquote (s_stream *stream, s_env *env)
 {
         if (peek_char(stream) == '`') {
                 read_char(stream);
-                u_form *f = cons_backquote(read_form(stream, env));
-                return f;
+                return cons_backquote(read_form(stream, env));
         }
         return NULL;
 }

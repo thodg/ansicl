@@ -7,13 +7,13 @@ include_HEADERS =
 lib_LTLIBRARIES =
 
 if DEBUG
-AM_CFLAGS = -DDEBUG -O0 -ggdb
+AM_CFLAGS = -DDEBUG -O0 -ggdb -ansi -pedantic
 else
-AM_CFLAGS = -DNDEBUG -O2
+AM_CFLAGS = -DNDEBUG -O2 -ansi -pedantic
 endif
 
 bin_PROGRAMS += cfacts
-cfacts_LDADD = -lreadline -lncurses -lskiplist -lgc
+cfacts_LDADD = -lreadline -lncurses -lgc
 cfacts_SOURCES = \
 	backtrace.c \
 	block.c \
@@ -28,5 +28,6 @@ cfacts_SOURCES = \
 	package.c \
 	print.c \
 	read.c \
+	skiplist.c \
 	tags.c \
 	unwind_protect.c

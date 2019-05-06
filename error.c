@@ -26,7 +26,7 @@ u_form * error_ (s_string *str, s_env *env)
                 eh->backtrace = env->backtrace;
                 long_jump(&eh->buf, env);
         }
-        fprintf(stderr, "cfacts: %s\n", str->str);
+        fprintf(stderr, "cfacts: %s\n", string_str(str));
         return nil();
 }
 
@@ -45,7 +45,7 @@ void print_error (s_error_handler *eh, FILE *stream, s_env *env)
 {
         s_backtrace_frame *bf;
         fputs("cfacts: ", stream);
-        fputs(eh->string->str, stream);
+        fputs(string_str(eh->string), stream);
         fputs("\nBacktrace:", stream);
         for (bf = eh->backtrace; bf; bf = bf->next) {
                 print(bf->fun, stream, env);

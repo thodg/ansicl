@@ -31,8 +31,8 @@ s_string * init_string (s_string *str, unsigned long length,
 {
         str->type = FORM_STRING;
         str->length = length;
-        strncpy(str->str, chars, length);
-        str->str[length] = 0;
+        strncpy(string_str(str), chars, length);
+        string_str(str)[length] = 0;
         return str;
 }
         

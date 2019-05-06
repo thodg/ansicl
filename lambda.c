@@ -65,10 +65,10 @@ u_form * funcall_lambda (s_lambda *lambda, u_form *args, s_env *env)
         u_form *f = lambda->lambda_list;
         u_form *a = args;
         s_block block;
+        int rest = 0;
         env->frame = new_frame(lambda->frame);
         push_backtrace_frame((u_form*) lambda, env->frame->variables,
                              env);
-        int rest = 0;
         while (consp(f) && (consp(a) || rest)) {
                 s_symbol *s = &f->cons.car->symbol;
                 if (!symbolp(f->cons.car))
