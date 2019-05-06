@@ -144,7 +144,7 @@ void cfun (const char *name, f_cfun *fun, s_env *env)
         if (cf) {
                 u_form *c;
                 cf->type = FORM_CFUN;
-                cf->cfun.name = sym(name);
+                cf->cfun.name = name_sym;
                 cf->cfun.fun = fun;
                 c = cons((u_form*) name_sym, cf);
                 push(env->global_frame->functions, c);
@@ -168,7 +168,10 @@ void cspecial (const char *name, f_cfun *fun, s_env *env)
 u_form * defun (s_symbol *name, u_form *lambda_list, u_form *body,
                 s_env *env)
 {
-        s_lambda *l = new_lambda(sym("function"), name, lambda_list,
+        static s_symbol *function_sym = NULL;
+        if (!function_sym)
+                function_sym = sym("function");
+        s_lambda *l = new_lambda(function_sym, name, lambda_list,
                                  body, env);
         frame_new_function(name, l, env->global_frame);
         return (u_form*) name;
@@ -185,7 +188,10 @@ u_form * function (s_symbol *name, s_env *env)
 u_form * defmacro (s_symbol *name, u_form *lambda_list, u_form *body,
                    s_env *env)
 {
-        s_lambda *l = new_lambda(sym("macro"), name, lambda_list,
+        static s_symbol *macro_sym = NULL;
+        if (!macro_sym)
+                macro_sym = sym("macro");
+        s_lambda *l = new_lambda(macro_sym, name, lambda_list,
                                  body, env);
         frame_new_macro(name, l, env->global_frame);
         return (u_form*) name;
@@ -193,9 +199,12 @@ u_form * defmacro (s_symbol *name, u_form *lambda_list, u_form *body,
 
 u_form * labels (u_form *bindings, u_form *body, s_env *env)
 {
+        static s_symbol *labels_sym = NULL;
         s_frame *frame = env->frame;
         s_frame *f = new_frame(env->frame);
         u_form *r;
+        if (!labels_sym)
+                labels_sym = sym("labels");
         env->frame = f;
         while (consp(bindings)) {
                 u_form *first = bindings->cons.car;
@@ -210,7 +219,7 @@ u_form * labels (u_form *bindings, u_form *body, s_env *env)
                 body = first->cons.cdr->cons.cdr;
                 if (!symbolp(name))
                         return error(env, "invalid binding for labels");
-                l = new_lambda(sym("labels"), &name->symbol,
+                l = new_lambda(labels_sym, &name->symbol,
                                lambda_list, body, env);
                 frame_new_function(&name->symbol, l, f);
                 bindings = bindings->cons.cdr;
@@ -222,9 +231,12 @@ u_form * labels (u_form *bindings, u_form *body, s_env *env)
 
 u_form * flet (u_form *bindings, u_form *body, s_env *env)
 {
+        s_symbol *flet_sym = NULL;
         s_frame *frame = env->frame;
         s_frame *f = new_frame(env->frame);
         u_form *r;
+        if (!flet_sym)
+                flet_sym = sym("flet");
         while (consp(bindings)) {
                 u_form *first = bindings->cons.car;
                 u_form *name;
@@ -232,13 +244,13 @@ u_form * flet (u_form *bindings, u_form *body, s_env *env)
                 u_form *body;
                 s_lambda *l;
                 if (!consp(first) || !consp(first->cons.cdr))
-                        return error(env, "invalid binding for labels");
+                        return error(env, "invalid binding for flet");
                 name = first->cons.car;
                 lambda_list = first->cons.cdr->cons.car;
                 body = first->cons.cdr->cons.cdr;
                 if (!symbolp(name))
-                        return error(env, "invalid binding for labels");
-                l = new_lambda(sym("labels"), &name->symbol,
+                        return error(env, "invalid binding for flet");
+                l = new_lambda(flet_sym, &name->symbol,
                                lambda_list, body, env);
                 frame_new_function(&name->symbol, l, f);
                 bindings = bindings->cons.cdr;

@@ -122,21 +122,26 @@ u_form * cons_backquote (u_form *x)
 
 u_form * cons_comma_at (u_form *x, s_env *env)
 {
-        u_form *comma_at_sym = eval((u_form*) sym("*comma-atsign*"),
-                                    env);
-        return cons(comma_at_sym, cons(x, nil()));
+        static u_form *s = NULL;
+        if (!s)
+                s = (u_form*) sym("*comma-atsign*");
+        return cons(eval(s, env), cons(x, nil()));
 }
 
 u_form * cons_comma_dot (u_form *x, s_env *env)
 {
-        u_form *comma_dot_sym = eval((u_form*) sym("*comma-dot*"), env);
-        return cons(comma_dot_sym, cons(x, nil()));
+        static u_form *s = NULL;
+        if (!s)
+                s = (u_form*) sym("*comma-dot*");
+        return cons(eval(s, env), cons(x, nil()));
 }
 
 u_form * cons_comma (u_form *x, s_env *env)
 {
-        u_form *comma_sym = eval((u_form*) sym("*comma*"), env);
-        return cons(comma_sym, cons(x, nil()));
+        static u_form *s = NULL;
+        if (!s)
+                s = (u_form*) sym("*comma*");
+        return cons(eval(s, env), cons(x, nil()));
 }
 
 u_form * atom (u_form *form)
