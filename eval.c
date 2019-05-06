@@ -996,10 +996,22 @@ u_form * apply (u_form *fun, u_form *args, s_env *env)
 
 u_form * funcall (u_form *fun, u_form *args, s_env *env)
 {
+        u_form *result;
         if (fun->type == FORM_SYMBOL)
                 fun = symbol_function_(&fun->symbol, env);
-        if (fun->type == FORM_CFUN)
-                return fun->cfun.fun(args, env);
+        if (fun->type == FORM_CFUN) {
+                s_unwind_protect up;
+                push_backtrace_frame(fun, copy_list(args), env);
+                if (setjmp(up.buf)) {
+                        pop_unwind_protect(env);
+                        pop_backtrace_frame(env);
+                        longjmp(*up.jmp, 1);
+                }
+                result = fun->cfun.fun(args, env);
+                pop_unwind_protect(env);
+                pop_backtrace_frame(env);
+                return result;
+        }
         if (car(fun) == (u_form*) sym("lambda"))
                 fun = eval(fun, env);
         if (fun->type == FORM_LAMBDA)
