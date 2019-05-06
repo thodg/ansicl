@@ -169,9 +169,10 @@ u_form * defun (s_symbol *name, u_form *lambda_list, u_form *body,
                 s_env *env)
 {
         static s_symbol *function_sym = NULL;
+        s_lambda *l;
         if (!function_sym)
                 function_sym = sym("function");
-        s_lambda *l = new_lambda(function_sym, name, lambda_list,
+        l = new_lambda(function_sym, name, lambda_list,
                                  body, env);
         frame_new_function(name, l, env->global_frame);
         return (u_form*) name;
@@ -189,9 +190,10 @@ u_form * defmacro (s_symbol *name, u_form *lambda_list, u_form *body,
                    s_env *env)
 {
         static s_symbol *macro_sym = NULL;
+        s_lambda *l;
         if (!macro_sym)
                 macro_sym = sym("macro");
-        s_lambda *l = new_lambda(macro_sym, name, lambda_list,
+        l = new_lambda(macro_sym, name, lambda_list,
                                  body, env);
         frame_new_macro(name, l, env->global_frame);
         return (u_form*) name;
