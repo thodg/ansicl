@@ -41,7 +41,7 @@ int main ()
         srand(42);
         init_packages();
         if (isatty(0))
-                stream = stream_readline("cfacts> ");
+                stream = stream_readline("ansicl> ");
         else
                 stream = stream_stdin();
         env_init(&g_env, stream);

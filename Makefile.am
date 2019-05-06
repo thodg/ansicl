@@ -12,12 +12,12 @@ else
 AM_CFLAGS = -DNDEBUG -O2 -ansi -pedantic
 endif
 
-bin_PROGRAMS += cfacts
-cfacts_LDADD = -lreadline -lncurses -lgc
-cfacts_SOURCES = \
+bin_PROGRAMS += ansicl
+ansicl_LDADD = -lreadline -lncurses -lgc
+ansicl_SOURCES = \
+	ansicl.c \
 	backtrace.c \
 	block.c \
-	cfacts.c \
 	env.c \
 	error.c \
 	eval.c \
