@@ -1002,9 +1002,8 @@ u_form * funcall (u_form *fun, u_form *args, s_env *env)
                 return fun->cfun.fun(args, env);
         if (car(fun) == (u_form*) sym("lambda"))
                 fun = eval(fun, env);
-        if (fun->type == FORM_LAMBDA) {
-                return apply_lambda(&fun->lambda, args, env);
-        }
+        if (fun->type == FORM_LAMBDA)
+                return funcall_lambda(&fun->lambda, args, env);
         return error(env, "funcall argument is not a function");
 }
 

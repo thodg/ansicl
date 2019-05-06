@@ -58,7 +58,7 @@ u_form * eval_lambda_body (s_lambda *lambda, s_frame *frame, s_env *env)
         return f;
 }
 
-u_form * apply_lambda (s_lambda *lambda, u_form *args, s_env *env)
+u_form * funcall_lambda (s_lambda *lambda, u_form *args, s_env *env)
 {
         s_frame *frame = env->frame;
         u_form *f = lambda->lambda_list;
