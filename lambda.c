@@ -6,6 +6,7 @@
 #include "error.h"
 #include "eval.h"
 #include "lambda.h"
+#include "package.h"
 #include "unwind_protect.h"
 
 int check_lambda_list (u_form *lambda_list, s_env *env)
@@ -67,13 +68,25 @@ u_form * funcall_lambda (s_lambda *lambda, u_form *args, s_env *env)
         env->frame = new_frame(lambda->frame);
         push_backtrace_frame((u_form*) lambda, env->frame->variables,
                              env);
-        while (consp(f) && consp(a)) {
-                s_symbol *sym = &f->cons.car->symbol;
-                if (!symbolp(sym))
+        int rest = 0;
+        while (consp(f) && (consp(a) || rest)) {
+                s_symbol *s = &f->cons.car->symbol;
+                if (!symbolp(f->cons.car))
                         return error(env, "invalid lambda list");
-                frame_new_variable(sym, a->cons.car, env->frame);
+                if (s == sym("&rest") || s == sym("&body"))
+                        rest = 1;
+                else if (rest) {
+                        if (f->cons.cdr != nil())
+                                return error(env, "invalid lambda "
+                                             "list");
+                        frame_new_variable(s, a, env->frame);
+                        a = nil();
+                }
+                else {
+                        frame_new_variable(s, a->cons.car, env->frame);
+                        a = a->cons.cdr;
+                }
                 f = f->cons.cdr;
-                a = a->cons.cdr;
         }
         if (consp(f) || consp(a))
                 return error(env, "invalid number of arguments");
