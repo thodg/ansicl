@@ -35,11 +35,11 @@ void prin1_string (s_string *s, FILE *stream)
 {
         unsigned long len = s->length;
         char *c = s->str;
-        putchar('"');
+        fputc('"', stream);
         while (len--) {
                 if (*c == '"')
-                        putchar('\\');
-                putchar(*c++);
+                        fputc('\\', stream);
+                fputc(*c++, stream);
         }
         fputs("\"", stream);
 }
